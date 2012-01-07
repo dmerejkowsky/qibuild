@@ -1,0 +1,4 @@
+<project name="qibuild-gui" >
+  <depends  buildtime="true" runtime="true"
+    names="qt" />
+</project>
