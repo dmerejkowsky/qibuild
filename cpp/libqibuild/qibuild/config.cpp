@@ -4,74 +4,99 @@
 namespace qibuild {
   namespace config {
 
-Config::Config():
-  m_impl(new ConfigPrivate())
+QiBuildConfig::QiBuildConfig():
+  m_impl(new QiBuildConfigPrivate())
 {
 }
 
-Config::~Config()
+QiBuildConfig::~QiBuildConfig()
 {
   delete m_impl;
 }
 
-void Config::read(const QString &cfgPath)
+void QiBuildConfig::read(const QString &cfgPath)
 {
   m_impl->read(cfgPath);
 }
 
-void Config::save(const QString &cfgPath) const
+void QiBuildConfig::save(const QString &cfgPath) const
 {
   m_impl->save(cfgPath);
 }
 
-void Config::setContent(const QString &content)
+void QiBuildConfig::setContent(const QString &content)
 {
   m_impl->setContent(content);
 }
 
-QString Config::toString() const
+QString QiBuildConfig::toString() const
 {
   return m_impl->toString();
 }
 
-void Config::setEnvPath(const QString &path)
+void QiBuildConfig::setDefaultsEnvPath(const QString &path)
 {
-  m_impl->setEnvPath(path);
+  m_impl->setDefaultsEnvPath(path);
 }
 
-QString Config::envPath() const
+QString QiBuildConfig::defaultsEnvPath() const
 {
-  return m_impl->envPath();
+  return m_impl->defaultsEnvPath();
 }
 
-void Config::setIncredibuild(bool on)
+void QiBuildConfig::setIncredibuild(bool on)
 {
   m_impl->setIncredibuild(on);
 }
 
-bool Config::incredibuild() const
+bool QiBuildConfig::incredibuild() const
 {
   return m_impl->incredibuild();
 }
 
-void Config::setSdkDir(const QString &path)
+void QiBuildConfig::setSdkDir(const QString &path)
 {
   m_impl->setSdkDir(path);
 }
 
-QString Config::sdkDir() const
+QString QiBuildConfig::sdkDir() const
 {
   return m_impl->sdkDir();
 }
 
-void Config::setBuildDir(const QString &path)
+void QiBuildConfig::setBuildDir(const QString &path)
 {
   m_impl->setBuildDir(path);
 }
 
-QString Config::buildDir() const
+QString QiBuildConfig::buildDir() const
 {
   return m_impl->buildDir();
+}
+
+void QiBuildConfig::addIde(const Ide &ide)
+{
+  m_impl->addIde(ide);
+}
+
+QMap<QString, Ide> QiBuildConfig::ides() const
+{
+  return m_impl->ides();
+}
+
+void QiBuildConfig::clearIdes()
+{
+  m_impl->clearIdes();
+}
+
+void QiBuildConfig::addConfig(const Config &config)
+{
+  m_impl->addConfig(config);
+}
+
+QMap<QString, Config> QiBuildConfig::configs() const
+{
+  return m_impl->configs();
 }
 
   } // namespace config

@@ -4,13 +4,15 @@
 #include <QWidget>
 #include <QAbstractButton>
 
+class IdesWidget;
+
 namespace Ui {
   class ConfigWidget;
 }
 
 namespace qibuild{
   namespace config {
-    class Config;
+    class QiBuildConfig;
   }
 }
 
@@ -31,8 +33,9 @@ protected slots:
 
 private:
   Ui::ConfigWidget *ui;
-  qibuild::config::Config *m_config;
+  qibuild::config::QiBuildConfig *m_config;
   QString m_cfgPath;
+  IdesWidget *m_idesWidget;
 
 };
 

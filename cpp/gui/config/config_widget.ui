@@ -19,192 +19,215 @@
   <property name="windowTitle">
    <string>Global configuration</string>
   </property>
-  <widget class="QWidget" name="centralWidget" native="true">
+  <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
-     <x>-20</x>
-     <y>-30</y>
-     <width>581</width>
+     <x>30</x>
+     <y>0</y>
+     <width>561</width>
      <height>391</height>
     </rect>
    </property>
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>70</y>
-      <width>521</width>
-      <height>131</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Build Settings</string>
-    </property>
-    <widget class="QLabel" name="incredibuildLabel">
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="settingsTab">
+    <attribute name="title">
+     <string>General Settings</string>
+    </attribute>
+    <widget class="QWidget" name="centralWidget" native="true">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>30</y>
-       <width>111</width>
-       <height>16</height>
+       <x>0</x>
+       <y>0</y>
+       <width>541</width>
+       <height>361</height>
       </rect>
      </property>
-     <property name="text">
-      <string>Use incredibuild:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="sdkDirLabel">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>60</y>
-       <width>111</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Unique SDK dir:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="buildDirLabel">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>90</y>
-       <width>111</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Unique build dir:</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="incredibuildCheckBox">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>140</x>
-       <y>30</y>
-       <width>21</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="sdkLineEdit">
-     <property name="geometry">
-      <rect>
-       <x>140</x>
-       <y>60</y>
-       <width>221</width>
-       <height>21</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="buildLineEdit">
-     <property name="geometry">
-      <rect>
-       <x>140</x>
-       <y>90</y>
-       <width>221</width>
-       <height>21</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="skdDirButton">
-     <property name="geometry">
-      <rect>
-       <x>380</x>
-       <y>60</y>
-       <width>121</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Browse SDK dir ...</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="buildDirButton">
-     <property name="geometry">
-      <rect>
-       <x>380</x>
-       <y>90</y>
-       <width>121</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Browse Build dir ...</string>
-     </property>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>521</width>
+        <height>131</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Build Settings</string>
+      </property>
+      <widget class="QLabel" name="incredibuildLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>111</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Use incredibuild:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="sdkDirLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>60</y>
+         <width>111</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Unique SDK dir:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="buildDirLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>90</y>
+         <width>111</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Unique build dir:</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="incredibuildCheckBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>30</y>
+         <width>21</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="sdkLineEdit">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>60</y>
+         <width>221</width>
+         <height>21</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="buildLineEdit">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>90</y>
+         <width>221</width>
+         <height>21</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="skdDirButton">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>60</y>
+         <width>121</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Browse SDK dir ...</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="buildDirButton">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>90</y>
+         <width>121</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Browse Build dir ...</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="envGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>160</y>
+        <width>521</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Environnement Settings</string>
+      </property>
+      <widget class="QLabel" name="envPathLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>57</width>
+         <height>14</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Path</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="envPathLineEdit">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>30</y>
+         <width>221</width>
+         <height>21</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QDialogButtonBox" name="buttonBox">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>330</y>
+        <width>160</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="standardButtons">
+       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      </property>
+     </widget>
     </widget>
    </widget>
-   <widget class="QGroupBox" name="envGroupBox">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>230</y>
-      <width>521</width>
-      <height>111</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Environnement Settings</string>
-    </property>
-    <widget class="QLabel" name="envPathLabel">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>30</y>
-       <width>57</width>
-       <height>14</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Path</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="envPathLineEdit">
-     <property name="geometry">
-      <rect>
-       <x>140</x>
-       <y>30</y>
-       <width>221</width>
-       <height>21</height>
-      </rect>
-     </property>
-    </widget>
+   <widget class="QWidget" name="configsTab">
+    <attribute name="title">
+     <string>Build Configurations</string>
+    </attribute>
    </widget>
-  </widget>
-  <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="geometry">
-    <rect>
-     <x>420</x>
-     <y>360</y>
-     <width>160</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
  <connections>
   <connection>
-   <sender>skdDirButton</sender>
+   <sender>buildDirButton</sender>
    <signal>clicked()</signal>
    <receiver>ConfigWidget</receiver>
-   <slot>onBrowseSdkDir()</slot>
+   <slot>onBrowseBuildDir()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>460</x>
-     <y>110</y>
+     <x>494</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
      <x>299</x>
@@ -213,14 +236,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>buildDirButton</sender>
+   <sender>skdDirButton</sender>
    <signal>clicked()</signal>
    <receiver>ConfigWidget</receiver>
-   <slot>onBrowseBuildDir()</slot>
+   <slot>onBrowseSdkDir()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>460</x>
-     <y>140</y>
+     <x>494</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>299</x>
@@ -235,8 +258,8 @@
    <slot>onButtonBoxClicked(QAbstractButton*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>499</x>
-     <y>372</y>
+     <x>483</x>
+     <y>366</y>
     </hint>
     <hint type="destinationlabel">
      <x>299</x>

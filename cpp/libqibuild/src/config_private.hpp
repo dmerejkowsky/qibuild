@@ -7,10 +7,13 @@
 namespace qibuild {
   namespace config {
 
-class ConfigPrivate {
+struct Ide;
+struct Config;
+
+class QiBuildConfigPrivate {
   public:
-    ConfigPrivate();
-    virtual ~ConfigPrivate();
+    QiBuildConfigPrivate();
+    virtual ~QiBuildConfigPrivate();
 
     void read(const QString &cfgPath);
     void save(const QString &cfgPath) const;
@@ -18,21 +21,30 @@ class ConfigPrivate {
     void setContent(const QString &content);
     QString toString() const;
 
-    void setEnvPath(const QString &path);
-    QString envPath() const;
+    void setDefaultsEnvPath(const QString &path);
+    QString defaultsEnvPath() const;
     void setIncredibuild(bool on);
     bool incredibuild() const;
     void setSdkDir(const QString &sdkDir);
     QString sdkDir() const;
     void setBuildDir(const QString &path);
     QString buildDir() const;
+    void addIde(const Ide& ide);
+    QMap<QString, Ide> ides() const;
+    void clearIdes();
+    void addConfig(const Config& config);
+    QMap<QString, Config> configs() const;
 
   private:
+    void parseIdes();
+    void parseConfigs();
+
     QDomElement findElement(QDomElement &parent, const QString &name) const;
-    QDomElement findElement(const QString &name) const;
     QDomElement findOrCreate(QDomElement &parent, const QString &name);
-    QDomElement findOrCreate(const QString &name);
     QDomDocument *m_doc;
+
+    QMap<QString, Ide> m_ides;
+    QMap<QString, Config> m_configs;
 };
 
 
