@@ -506,6 +506,98 @@ rdepends = spam eggs
         qibuild.sh.rm(self.tmp)
 
 
+
+class SetConfigTestCase(unittest.TestCase):
+
+    def test_class(self):
+        class Foo:
+            pass
+        foo = Foo()
+        foo.bar = 0
+        qibuild.config.set_config(foo, 'bar', 42)
+        self.assertEqual(foo.bar, 42)
+
+    def test_dict(self):
+        foo = dict()
+        foo["bar"] = 0
+        qibuild.config.set_config(foo, "bar", 42)
+        self.assertEqual(foo["bar"], 42)
+
+    def test_dict_in_class(self):
+        class Foo:
+            pass
+        foo = Foo()
+        foo.bar = dict()
+        foo.bar["spam"] = ""
+        qibuild.config.set_config(foo, "bar.spam", "eggs")
+        self.assertEqual(foo.bar["spam"], "eggs")
+
+    def test_dict_in_dict(self):
+        foo = dict()
+        foo["bar"] = dict()
+        foo["bar"]["spam"] = ""
+        qibuild.config.set_config(foo, "bar.spam", "eggs")
+        self.assertEqual(foo["bar"]["spam"], "eggs")
+
+    def test_class_in_class(self):
+        class Foo:
+            pass
+        class Bar:
+            pass
+        foo = Foo()
+        foo.bar = Bar()
+        foo.bar.spam = ""
+        qibuild.config.set_config(foo, "bar.spam", "eggs")
+        self.assertEqual(foo.bar.spam, "eggs")
+
+    def test_dot_in_key(self):
+        foo = dict()
+        foo["bar.spam"] = ""
+        qibuild.config.set_config(foo, "'bar.spam'", "eggs")
+        self.assertEqual(foo["bar.spam"], "eggs")
+
+    def test_dot_in_key2(self):
+        class Foo:
+            pass
+        class Spam:
+            pass
+        spam = Spam()
+        spam.eggs = 0
+        foo = Foo()
+        foo.bar = dict()
+        foo.bar['www.example.com'] = spam
+
+        qibuild.config.set_config(foo, "bar.'www.example.com'.eggs", 42)
+        self.assertEqual(foo.bar['www.example.com'].eggs, 42)
+
+    def test_unkown_attr(self):
+        class Foo:
+            pass
+        foo = Foo()
+        error = None
+        try:
+            qibuild.config.set_config(foo, "bar", 42)
+        except Exception, e:
+            error = e
+        self.assertFalse(error is None)
+        self.assertEqual(str(error),
+            "Foo instance has no attribute 'bar'")
+
+    def test_unset_class(self):
+        class Foo:
+            pass
+        foo = Foo()
+        foo.bar = "42"
+        qibuild.config.unset_config(foo, "bar")
+        self.assertEqual(foo.bar, None)
+
+    def test_unset_dict(self):
+        foo = dict()
+        foo["bar"] = 42
+        qibuild.config.unset_config(foo, "bar")
+        self.assertFalse("bar" in foo)
+
+
 if __name__ == "__main__":
     unittest.main()
 

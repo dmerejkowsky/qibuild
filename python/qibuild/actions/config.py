@@ -17,6 +17,15 @@ def configure_parser(parser):
         help="edit the configuration")
     parser.add_argument("--wizard", action="store_true",
         help="run a wizard to edit the configuration")
+    parser.add_argument("--set", action="store_true",
+        help="Set a configuration variable")
+    parser.add_argument("--unset", action="store_true",
+        help="Unset a configuration variable")
+    parser.add_argument("variable", nargs="?",
+        help="The name of a config variable to set")
+    parser.add_argument("value", nargs="?",
+        help="The value of a config variable to set")
+
 
 def do(args):
     """Main entry point"""
@@ -31,6 +40,22 @@ def do(args):
 
     if args.wizard:
         run_config_wizard()
+        return
+
+    if args.set:
+        if not args.variable:
+            raise Exception("--set needs a variable argument")
+        if not args.value:
+            raise Exception("--set needs a value argument")
+        qibuild.config.set_config(qibuild_cfg, args.variable, args.value)
+        qibuild_cfg.write()
+        return
+
+    if args.unset:
+        if not args.variable:
+            raise Exception("--unset needs a variable argument")
+        qibuild.config.unset_config(qibuild_cfg, args.variable)
+        qibuild_cfg.write()
         return
 
     if args.edit:

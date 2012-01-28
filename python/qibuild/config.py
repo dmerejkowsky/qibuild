@@ -896,3 +896,90 @@ def convert_project_manifest(qibuild_manifest):
     out = StringIO()
     project.write(out)
     return out.getvalue()
+
+
+def parse_dot_variable(variable):
+    """ Parse a dot separated variable
+
+    >>> parse_dot_variable("foo.bar")
+    ['foo', 'bar']
+    >>> parse_dot_variable("'foo.bar'")
+    ['foo.bar']
+    >>> parse_dot_variable("foo.'bar.spam'.eggs")
+    ['foo', 'bar.spam', 'eggs']
+
+    """
+    res = list()
+    word = ""
+    quotted = False
+    for c in variable:
+        if c == "'":
+            if quotted:
+                quotted = False
+            else:
+                quotted = True
+        elif c == ".":
+            if quotted:
+                # same word:
+                word += c
+            else:
+                res.append(word)
+                word = ""
+        else:
+            word += c
+    if quotted:
+        raise Exception("Missing ending '")
+    res.append(word)
+    return res
+
+
+def set_config(cfg, variable, value):
+    """ Recursive function to set a variable in a cfg instance,
+    where cfg can be a class or a dict, and variable is a
+    dot separated path
+
+    """
+    splitted = parse_dot_variable(variable)
+    _set_config(cfg, splitted, value)
+
+
+def unset_config(cfg, variable):
+    """ Recursive function to unset a variable in a cfg instance,
+    where cfg can be a class or a dict, and variable is a
+    dot separated path
+
+    """
+    splitted = parse_dot_variable(variable)
+    _set_config(cfg, splitted, None)
+
+
+def _set_config(cfg, splitted, value):
+    """ Helper function for set_config
+
+    """
+    if len(splitted) == 1:
+        variable = splitted[0]
+        if isinstance(cfg, dict):
+            if value is None:
+                del cfg[variable]
+            else:
+                cfg[variable] = value
+        else:
+            getattr(cfg, variable)
+            setattr(cfg, variable, value)
+    else:
+        name = splitted[0]
+        rest = splitted[1:]
+        if isinstance(cfg, dict):
+            to_set = cfg[name]
+            if to_set:
+                _set_config(to_set, rest, value)
+        else:
+            attr = getattr(cfg, name)
+            _set_config(attr, rest, value)
+
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
