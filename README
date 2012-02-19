@@ -35,6 +35,8 @@ qiBuild contains work from:
 
 * gclient http://code.google.com/p/gclient/ (BSD)
 
+* cython-cmake https://github.com/thewtex/cython-cmake-example (Apache)
+
 Maintainers:
 Dimitri Merejkowsky <dmerejkowsky@aldebaran-robotics.com>
 Cedric GESTES <gestes@aldebaran-robotics.com>
