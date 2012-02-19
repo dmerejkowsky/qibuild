@@ -29,3 +29,4 @@ qibuild CMake API functions
    api/option
    api/find
    api/swig/python
+   api/cython

@@ -8,7 +8,7 @@ qiBuild reference documentation
    :maxdepth: 1
 
    man/index
-   cmake/api
+   cmake/index
    cfg/index
    python/index
 

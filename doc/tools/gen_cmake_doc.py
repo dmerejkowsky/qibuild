@@ -15,7 +15,8 @@ DOCUMENTED_FILES=[
     "submodule",
     "option",
     "find",
-    "swig/python"
+    "swig/python",
+    "cython/general"
 ]
 
 import re
