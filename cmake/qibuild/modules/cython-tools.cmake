@@ -229,9 +229,10 @@ endfunction()
 # cython_add_module( <name> src1 src2 ... srcN )
 # Build the Cython Python module.
 function( cython_add_module _name )
+  cmake_parse_arguments(ARG "" "SUBFOLDER" "DEPENDS" ${ARGN})
   set( pyx_module_sources "" )
   set( other_module_sources "" )
-  foreach( _file ${ARGN} )
+  foreach( _file ${ARG_UNPARSED_ARGUMENTS} )
     if( ${_file} MATCHES ".*\\.py[x]?$" )
       list( APPEND pyx_module_sources ${_file} )
     else()
@@ -244,14 +245,22 @@ function( cython_add_module _name )
   if(WIN32)
     set_target_properties(${_name} DEBUG_POSTFIX "_d")
   endif()
+  if("${ARG_SUBFOLDER}" STREQUAL "")
+    set(_out "${QI_SDK_DIR}/${QI_SDK_LIB}")
+  else()
+    set(_out ${QI_SDK_DIR}/${QI_SDK_LIB}/${ARG_SUBFOLDER})
+  endif()
   set_target_properties(${_name} PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY_DEBUG    "${QI_SDK_DIR}/lib"
-      RUNTIME_OUTPUT_DIRECTORY_RELEASE  "${QI_SDK_DIR}/lib"
-      RUNTIME_OUTPUT_DIRECTORY          "${QI_SDK_DIR}/lib"
-      LIBRARY_OUTPUT_DIRECTORY_DEBUG    "${QI_SDK_DIR}/lib"
-      LIBRARY_OUTPUT_DIRECTORY_RELEASE  "${QI_SDK_DIR}/lib"
-      LIBRARY_OUTPUT_DIRECTORY          "${QI_SDK_DIR}/lib"
+      RUNTIME_OUTPUT_DIRECTORY_DEBUG    "${_out}"
+      RUNTIME_OUTPUT_DIRECTORY_RELEASE  "${_out}"
+      RUNTIME_OUTPUT_DIRECTORY          "${_out}"
+      LIBRARY_OUTPUT_DIRECTORY_DEBUG    "${_out}"
+      LIBRARY_OUTPUT_DIRECTORY_RELEASE  "${_out}"
+      LIBRARY_OUTPUT_DIRECTORY          "${_out}"
   )
+  foreach(_dep ${ARG_DEPENDS})
+    qi_use_lib(${_name} ${_dep})
+  endforeach()
 endfunction()
 
 include( CMakeParseArguments )
