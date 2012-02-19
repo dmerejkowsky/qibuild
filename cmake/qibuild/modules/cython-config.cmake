@@ -29,3 +29,5 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS( Cython REQUIRED_VARS CYTHON_EXECUTABLE )
 
 mark_as_advanced( CYTHON_EXECUTABLE )
 
+get_filename_component(_root_dir ${CMAKE_CURRENT_LIST_FILE} PATH)
+include("${_root_dir}/cython-tools.cmake")

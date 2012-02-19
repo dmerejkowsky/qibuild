@@ -18,7 +18,7 @@
 #   cython_add_standalone_executable( <executable_name> [MAIN_MODULE src1] <src1> <src2> ... <srcN> )
 #
 # To avoid dependence on Python, set the PYTHON_LIBRARY cache variable to point
-# to a static library.  If a MAIN_MODULE source is specified, 
+# to a static library.  If a MAIN_MODULE source is specified,
 # the "if __name__ == '__main__':" from that module is used as the C main() method
 # for the executable.  If MAIN_MODULE, the source with the same basename as
 # <executable_name> is assumed to be the MAIN_MODULE.
@@ -71,7 +71,6 @@ set( CYTHON_FLAGS "" CACHE STRING
   "Extra flags to the cython compiler." )
 mark_as_advanced( CYTHON_ANNOTATE CYTHON_NO_DOCSTRINGS CYTHON_FLAGS )
 
-find_package( Cython REQUIRED )
 find_package( PythonLibs REQUIRED )
 
 set( CYTHON_CXX_EXTENSION "cxx" )
@@ -115,7 +114,7 @@ function( compile_pyx _name generated_file )
     # Add the pxd file will the same name as the given pyx file.
     unset( corresponding_pxd_file CACHE )
     find_file( corresponding_pxd_file ${pyx_file_basename}.pxd
-      PATHS "${pyx_path}" ${cmake_include_directories} 
+      PATHS "${pyx_path}" ${cmake_include_directories}
       NO_DEFAULT_PATH )
     if( corresponding_pxd_file )
       list( APPEND pxd_dependencies "${corresponding_pxd_file}" )
@@ -195,7 +194,7 @@ function( compile_pyx _name generated_file )
       set( cython_debug_arg "--gdb" )
   endif()
 
-  # Include directory arguments. 
+  # Include directory arguments.
   list( REMOVE_DUPLICATES cython_include_directories )
   set( include_directory_arg "" )
   foreach( _include_dir ${cython_include_directories} )
@@ -214,7 +213,7 @@ function( compile_pyx _name generated_file )
   add_custom_command( OUTPUT ${_generated_file}
     COMMAND ${CYTHON_EXECUTABLE}
     ARGS ${cxx_arg} ${include_directory_arg}
-    ${annotate_arg} ${no_docstrings_arg} ${cython_debug_arg} ${CYTHON_FLAGS} 
+    ${annotate_arg} ${no_docstrings_arg} ${cython_debug_arg} ${CYTHON_FLAGS}
     --output-file  ${_generated_file} ${pyx_locations}
     DEPENDS ${pyx_locations} ${pxd_dependencies}
     IMPLICIT_DEPENDS ${pyx_lang} ${c_header_dependencies}
@@ -242,6 +241,17 @@ function( cython_add_module _name )
   compile_pyx( ${_name} generated_file ${pyx_module_sources} )
   include_directories( ${PYTHON_INCLUDE_DIRS} )
   python_add_module( ${_name} ${generated_file} ${other_module_sources} )
+  if(WIN32)
+    set_target_properties(${_name} DEBUG_POSTFIX "_d")
+  endif()
+  set_target_properties(${_name} PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY_DEBUG    "${QI_SDK_DIR}/lib"
+      RUNTIME_OUTPUT_DIRECTORY_RELEASE  "${QI_SDK_DIR}/lib"
+      RUNTIME_OUTPUT_DIRECTORY          "${QI_SDK_DIR}/lib"
+      LIBRARY_OUTPUT_DIRECTORY_DEBUG    "${QI_SDK_DIR}/lib"
+      LIBRARY_OUTPUT_DIRECTORY_RELEASE  "${QI_SDK_DIR}/lib"
+      LIBRARY_OUTPUT_DIRECTORY          "${QI_SDK_DIR}/lib"
+  )
 endfunction()
 
 include( CMakeParseArguments )
