@@ -11,6 +11,9 @@ import os
 import qibuild
 import qitoolchain
 
+# TODO: on windows, look for jom or incredibuild and propose
+# the user to choose it.
+
 def guess_cmake(qibuild_cfg):
     """ Try to find cmake
 
