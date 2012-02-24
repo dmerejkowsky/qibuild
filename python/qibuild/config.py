@@ -144,22 +144,26 @@ class IDE:
 class Build:
     def __init__(self):
         self.incredibuild = False
+        self.jom = False
 
     def parse(self, tree):
-        incredibuild = tree.get("incredibuild")
-        if incredibuild and incredibuild.lower() in ["y", "yes", "1", "true", "on"]:
-            self.incredibuild = True
+        self.incredibuild = parse_bool_attr(tree, "incredibuild")
+        self.jom = parse_bool_attr(tree, "jom")
 
     def tree(self):
         tree = etree.Element("build")
         if self.incredibuild:
             tree.set("incredibuild", "true")
+        if self.jom:
+            tree.set("jom", "true")
         return tree
 
     def __str__(self):
         res = ""
         if self.incredibuild:
-            res += "incredibuild: %s\n" % self.incredibuild
+            res += "using incredibuild\n"
+        if self.jom:
+            res += "using jom\n"
         return res
 
 class CMake:

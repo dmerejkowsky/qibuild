@@ -420,7 +420,12 @@ class Toc(WorkTree):
             raise ConfigureFailed(project)
 
 
-    def build_project(self, project, incredibuild=False, num_jobs=1, target=None, rebuild=False):
+    def build_project(self, project,
+        incredibuild=False,
+        jom=False,
+        num_jobs=1,
+        target=None,
+        rebuild=False):
         """ Build a project.
 
         Usually we will simply can ``cmake --build``, but for incredibuild
@@ -457,8 +462,12 @@ class Toc(WorkTree):
         if num_jobs > 1 and "make" in self.cmake_generator.lower():
             cmd += [ "-j%d" % num_jobs]
 
+        if jom:
+            cmd = ["jom"]
+            if target:
+                cmd += [target]
         try:
-            qibuild.command.call(cmd, env=self.build_env)
+            qibuild.command.call(cmd, env=self.build_env, cwd=build_dir)
         except CommandFailedException:
             raise BuildFailed(project)
 

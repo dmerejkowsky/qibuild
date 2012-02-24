@@ -25,6 +25,7 @@ def do(args):
 
     (project_names, _package_names, _not_found) = toc.resolve_deps()
     use_incredibuild = toc.config.build.incredibuild
+    use_jom = toc.config.build.jom
 
     if toc.active_config:
         logger.info("Active configuration: %s (%s)", toc.active_config, toc.build_type)
@@ -36,8 +37,12 @@ def do(args):
                 args.target, project.name, toc.build_folder_name, toc.build_type)
         else:
             logger.info("Building %s in %s (%s)", project.name, toc.build_folder_name, toc.build_type)
-        toc.build_project(project, target=args.target, num_jobs=args.num_jobs,
-            incredibuild=use_incredibuild, rebuild=args.rebuild)
+        toc.build_project(project,
+            target=args.target,
+            num_jobs=args.num_jobs,
+            incredibuild=use_incredibuild,
+            jom=use_jom,
+            rebuild=args.rebuild)
 
 
 
