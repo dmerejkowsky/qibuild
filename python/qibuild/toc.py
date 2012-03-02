@@ -489,6 +489,10 @@ class Toc(WorkTree):
             qibuild.dlls.fix_dlls(sdk_dir, paths=paths,
                 mingw=mingw,
                 build_env=self.build_env)
+        if sys.platform == "darwin":
+            import qibuild.dylibs
+            qibuild.dylibs.fix_dylibs(sdk_dir, paths=paths)
+
 
     def test_project(self, project, test_name=None):
         """Run qibuild.ctest on a project
