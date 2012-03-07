@@ -73,10 +73,10 @@ def do(args):
     if tc_name in qitoolchain.get_tc_names():
         LOGGER.info("%s already exists, removing previous "
                     "toolchain and creating a new one", tc_name)
-        toolchain = qitoolchain.Toolchain(tc_name)
+        toolchain = qitoolchain.open_toolchain(tc_name)
         toolchain.remove()
 
-    toolchain = qitoolchain.Toolchain(tc_name)
+    toolchain = qitoolchain.create_toolchain(tc_name)
     if feed:
         toolchain.parse_feed(feed, dry_run=dry_run)
 

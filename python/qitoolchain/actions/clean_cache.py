@@ -59,7 +59,7 @@ def do(args):
         raise Exception(mess)
 
 
-    toolchain = qitoolchain.Toolchain(tc_name)
+    toolchain = qitoolchain.open_toolchain(tc_name)
     tc_cache = toolchain.cache
 
     dirs_to_rm = os.listdir(tc_cache)

@@ -50,7 +50,7 @@ def do(args):
                 raise Exception(mess)
 
         LOGGER.info("Updating toolchain %s using %s", tc_name, feed)
-        toolchain = qitoolchain.Toolchain(tc_name)
+        toolchain = qitoolchain.open_toolchain(tc_name)
         toolchain.parse_feed(feed, dry_run=dry_run)
     else:
         for tc_name in qitoolchain.get_tc_names():
@@ -61,7 +61,7 @@ def do(args):
                 continue
             LOGGER.info("###\n## Updating toolchain %s using %s\n##\n",
                 tc_name, tc_feed)
-            toolchain = qitoolchain.Toolchain(tc_name)
+            toolchain = qitoolchain.open_toolchain(tc_name)
             toolchain.parse_feed(tc_feed, dry_run=dry_run)
             print
 

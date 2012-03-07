@@ -52,17 +52,17 @@ class QiToolchainTestCase(unittest.TestCase):
 
 
     def test_create_toolchain(self):
-        qitoolchain.Toolchain("foo")
+        qitoolchain.create_toolchain("foo")
         self.assertEquals(qitoolchain.get_tc_names(), ["foo"])
 
     def test_remove_toolchain(self):
-        tc = qitoolchain.Toolchain("foo")
+        tc = qitoolchain.create_toolchain("foo")
         self.assertEquals(qitoolchain.get_tc_names(), ["foo"])
         tc.remove()
         self.assertEquals(qitoolchain.get_tc_names(), list())
 
     def test_add_package(self):
-        tc = qitoolchain.Toolchain("test")
+        tc = qitoolchain.create_toolchain("test")
 
         self.assertEquals(tc.packages, list())
 
@@ -81,12 +81,12 @@ class QiToolchainTestCase(unittest.TestCase):
 
         # Create a new toolchain object and check that toolchain
         # file contents did not change
-        other_tc = qitoolchain.Toolchain("test")
+        other_tc = qitoolchain.open_toolchain("test")
         other_tc_file = get_tc_file_contents(other_tc)
         self.assertEquals(other_tc_file, tc_file)
 
     def test_remove_package(self):
-        tc = qitoolchain.Toolchain("test")
+        tc = qitoolchain.create_toolchain("test")
 
         error = None
 
@@ -108,7 +108,7 @@ class QiToolchainTestCase(unittest.TestCase):
         self.assertFalse("/path/to/foo" in tc_file)
 
     def test_add_package_with_tc_file(self):
-        tc = qitoolchain.Toolchain("test")
+        tc = qitoolchain.create_toolchain("test")
         naoqi_ctc = qitoolchain.Package("naoqi-ctc", "/path/to/ctc", "toolchain-geode.cmake")
         tc.add_package(naoqi_ctc)
 
@@ -116,7 +116,7 @@ class QiToolchainTestCase(unittest.TestCase):
         self.assertTrue('include("toolchain-geode.cmake")' in tc_file, tc_file)
 
     def test_remove_package_with_tc_file(self):
-        tc = qitoolchain.Toolchain("test")
+        tc = qitoolchain.create_toolchain("test")
         naoqi_ctc = qitoolchain.Package("naoqi-ctc", "/path/to/ctc", "toolchain-geode.cmake")
         tc.add_package(naoqi_ctc)
         tc.remove_package("naoqi-ctc")
@@ -125,7 +125,7 @@ class QiToolchainTestCase(unittest.TestCase):
         self.assertFalse("toolchain-geode.cmake" in tc_file)
 
     def test_tc_order(self):
-        tc = qitoolchain.Toolchain("test")
+        tc = qitoolchain.create_toolchain("test")
         a_path  = "/path/to/a"
         b_path  = "/path/to/b"
         a_cmake = "a-config.cmake"
@@ -229,7 +229,7 @@ class FeedTestCase(unittest.TestCase):
         sdk_path = os.path.join(self.tmp, "sdk")
         sdk_xml = self.configure_xml("sdk.xml", sdk_path)
 
-        tc = qitoolchain.Toolchain("sdk")
+        tc = qitoolchain.create_toolchain("sdk")
         tc.parse_feed(sdk_xml)
         tc_file = get_tc_file_contents(tc)
 
@@ -243,7 +243,7 @@ class FeedTestCase(unittest.TestCase):
         ctc_path = os.path.join(self.tmp, "ctc")
         ctc_xml  = self.configure_xml("ctc.xml", ctc_path)
 
-        tc = qitoolchain.Toolchain("ctc")
+        tc = qitoolchain.create_toolchain("ctc")
         tc.parse_feed(ctc_xml)
         tc_file = get_tc_file_contents(tc)
 
@@ -264,7 +264,7 @@ class FeedTestCase(unittest.TestCase):
         ctc_path = os.path.join(self.tmp, "ctc")
         ctc_xml  = self.configure_xml("ctc-nonfree.xml", ctc_path)
 
-        tc = qitoolchain.Toolchain("ctc")
+        tc = qitoolchain.create_toolchain("ctc")
         tc.parse_feed(ctc_xml)
 
         package_names = [p.name for p in tc.packages]
@@ -292,7 +292,7 @@ class FeedTestCase(unittest.TestCase):
         self.setup_srv()
         buildfarm_xml = os.path.join(self.srv, "buildfarm.xml")
 
-        tc = qitoolchain.Toolchain("buildfarm")
+        tc = qitoolchain.create_toolchain("buildfarm")
         tc.parse_feed(buildfarm_xml)
 
         package_names = [p.name for p in tc.packages]
@@ -305,8 +305,8 @@ class FeedTestCase(unittest.TestCase):
         master_xml = os.path.join(self.srv, "master.xml")
         maint_xml  = os.path.join(self.srv, "maint.xml")
 
-        tc_master = qitoolchain.Toolchain("master")
-        tc_maint  = qitoolchain.Toolchain("maint")
+        tc_master = qitoolchain.create_toolchain("master")
+        tc_maint  = qitoolchain.create_toolchain("maint")
 
         tc_master.parse_feed(master_xml)
         tc_maint.parse_feed(maint_xml)
@@ -325,19 +325,18 @@ class FeedTestCase(unittest.TestCase):
         self.setup_srv()
         buildfarm_xml = os.path.join(self.srv, "buildfarm.xml")
 
-        tc = qitoolchain.Toolchain("buildfarm")
+        tc = qitoolchain.create_toolchain("buildfarm")
         tc.parse_feed(buildfarm_xml)
-
         self.assertEquals(tc.feed, buildfarm_xml)
 
-        # Create a new object, and check that feed storing
+        # Re-open the toolchain we created, check that the feed
         # is persistent
-        tc2 = qitoolchain.Toolchain("buildfarm")
+        tc2 = qitoolchain.open_toolchain("buildfarm")
         self.assertEquals(tc2.feed, buildfarm_xml)
 
     def test_parse_feed_twice(self):
         self.setup_srv()
-        tc = qitoolchain.Toolchain("test")
+        tc = qitoolchain.create_toolchain("test")
         full = os.path.join(self.srv, "full.xml")
         minimal = os.path.join(self.srv, "minimal.xml")
         tc.parse_feed(full)
@@ -346,7 +345,7 @@ class FeedTestCase(unittest.TestCase):
         self.assertEquals(["boost", "python"], package_names)
         self.assertTrue("python" in get_tc_file_contents(tc))
 
-        tc2 = qitoolchain.Toolchain("test")
+        tc2 = qitoolchain.open_toolchain("test")
         tc2.parse_feed(minimal)
         package_names = [p.name for p in tc2.packages]
         package_names.sort()
@@ -383,11 +382,49 @@ class FeedTestCase(unittest.TestCase):
         with open(a_feed, "w") as fp:
             fp.write(to_write)
 
-        tc = qitoolchain.Toolchain("test")
+        tc = qitoolchain.create_toolchain("test")
         feed_url = "file://" + qibuild.sh.to_posix_path(a_feed)
         tc.parse_feed(feed_url)
 
+    def test_add_package_to_feed(self):
+        self.setup_srv()
+        tc = qitoolchain.create_toolchain("test")
+        minimal_xml = os.path.join(self.srv, "minimal.xml")
+        feed_url = "file://" + qibuild.sh.to_posix_path(minimal_xml)
+        tc.parse_feed(feed_url)
+        package_names = [p.name for p in tc.packages]
+        self.assertEquals(package_names, ["boost"])
 
+        qitoolchain.feed.add_package_to_feed(
+            minimal_xml, "nuance", "nuance-42-atom.tar.gz")
+        tc.parse_feed(feed_url)
+        package_names = [p.name for p in tc.packages]
+        self.assertEquals(package_names, ["nuance", "boost"])
+
+
+    def test_add_package_then_update(self):
+        self.setup_srv()
+        minimal_xml = os.path.join(self.srv, "minimal.xml")
+        feed_url = "file://" + qibuild.sh.to_posix_path(minimal_xml)
+        tc = qitoolchain.create_toolchain("test")
+        tc.parse_feed(feed_url)
+        package_names = [p.name for p in tc.packages]
+        self.assertEquals(package_names, ["boost"])
+
+        foo_package = qitoolchain.Package("foo", "/path/to/foo")
+        tc.add_package(foo_package)
+        package_names = [p.name for p in tc.packages]
+        self.assertEquals(package_names, ["foo", "boost"])
+
+        # Make the feed change, re-parse the feed,
+        # check that:
+        #  - new packages have been added from the feed
+        #  - manually added foo package is still here
+        qitoolchain.feed.add_package_to_feed(
+            minimal_xml, "nuance", "nuance-42-atom.tar.gz")
+        tc.parse_feed(feed_url)
+        package_names = [p.name for p in tc.packages]
+        self.assertEquals(package_names, ["nuance", "boost", "foo"])
 
 
 if __name__ == "__main__":

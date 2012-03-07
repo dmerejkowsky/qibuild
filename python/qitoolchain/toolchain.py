@@ -8,6 +8,8 @@ A set of packages and a toolchain file
 
 import os
 import ConfigParser
+# FIXME: should we use XML for persistence of Toolchain objects?
+import pickle
 
 import qibuild
 import qibuild.configstore
@@ -38,33 +40,26 @@ def get_default_packages_path(tc_name):
     return res
 
 def get_tc_names():
-    """ Return the list of all known toolchains
+    """ Return the list of all known toolchains, simply by
+    parsing the file names in the cache
 
-    They are simply stored in ~/.config/qi/toolchains.cfg
-    in this format
-
-        [toolchains]
-        linux32=
-        linux64=/path/to/linux64/feed.xxml
     """
-    config = ConfigParser.ConfigParser()
-    config.read(get_tc_config_path())
-    if not config.has_section('toolchains'):
+    cache_path = qibuild.sh.to_native_path(CACHE_PATH)
+    cache_path = os.path.join(cache_path, "toolchains")
+    if not os.path.exists(cache_path):
         return list()
-    tc_items = config.items('toolchains')
-    res = [x[0] for x in tc_items]
-    res.sort()
-    return res
+    filenames = os.listdir(cache_path)
+    tc_names = [x for x in filenames if x.endswith(".pickle")]
+    tc_names = [x[:-7] for x in tc_names]
+    return tc_names
+
 
 def get_tc_feed(tc_name):
     """ Get the feed associated to a toolchain
 
     """
-    config = ConfigParser.ConfigParser()
-    config.read(get_tc_config_path())
-    if not config.has_section('toolchains'):
-        return None
-    return config.get('toolchains', tc_name)
+    tc = open_toolchain(tc_name)
+    return tc.feed
 
 
 def get_tc_config_path():
@@ -83,16 +78,28 @@ def get_tc_config_path():
     config_path = os.path.join(config_path, "toolchains.cfg")
     return config_path
 
+def get_tc_storage_path(tc_name):
+    """ Path to the storage file of the toolchain
+
+    """
+    cache_path = qibuild.sh.to_native_path(CACHE_PATH)
+    cache_path = os.path.join(cache_path, "toolchains")
+    qibuild.sh.mkdir(cache_path, recursive=True)
+    return os.path.join(cache_path, "%s.pickle" % tc_name)
 
 class Package():
-    """ A package simply has a name and a path.
+    """ A package always has a name and a path.
+
     It may also be associated to a toolchain file, relative to its path
+    It may also have a version number, of be coming from a feed
 
     """
     def __init__(self, name, path, toolchain_file=None):
         self.name = name
         self.path = path
         self.toolchain_file = toolchain_file
+        self.version = None
+        self.feed = None
         # Quick hack for now
         self.depends = list()
 
@@ -122,23 +129,39 @@ class Package():
     def __lt__(self, other):
         return self.name < other.name
 
+def open_toolchain(name):
+    """ Open a new toolchain from a name
+
+    :return: a :py:class:`Toolchain` object
+
+    """
+    storage_path = get_tc_storage_path(name)
+    if not os.path.exists(storage_path):
+        raise Exception("No such toolchain: %s" % name)
+    with open(storage_path, "r") as fp:
+        return pickle.load(fp)
+
+
+def create_toolchain(name):
+    """ Create a new toolchain
+    :return: a :py:class:`Toolchain` object
+
+    """
+    tc = Toolchain(name)
+    tc.dump()
+    return tc
+
+
 class Toolchain:
     """ A toolchain is a set of packages
 
     If has a name that will later be used as 'build config'
     by the toc object.
 
-    It has a configuration in ~/.config/qi/toolchains/<name.cfg>
-    looking like:
-
-      [package foo]
-      path = '~/.cache/share/qi/ .... '
-      toolchain_file = '...'
-
-      [package naoqi-sdk]
-      path = 'path/to/naoqi-sdk'
-
-    thus added packages are stored permanentely.
+    It has a persistent storage, but to benifit from
+    it you should not use the constructor but use
+    the :py:meth:`create_toolchain` and :py:meth:`open_toolchain`
+    methods instead.
 
     """
     def __init__(self, name):
@@ -146,8 +169,6 @@ class Toolchain:
         self.packages = list()
         self.cache = self._get_cache_path()
         self.toolchain_file  = os.path.join(self.cache, "toolchain-%s.cmake" % self.name)
-        # Stored in general config file when using self.parse_feed,
-        # updated by self.load_config()
         self.feed = None
 
         # Add self to the list of known toolchains:
@@ -162,7 +183,6 @@ class Toolchain:
                 config.write(fp)
 
         self.cmake_flags = list()
-        self.load_config()
 
     def __str__(self):
         res  = "Toolchain %s\n" % self.name
@@ -182,30 +202,11 @@ class Toolchain:
     def remove(self):
         """ Remove a toolchain
 
-        Clean cache, remove all packages, remove self from configurations
+        Clean cache, remove all packages
         """
         qibuild.sh.rm(self.cache)
-
-        cfg_path = get_tc_config_path()
-        config = ConfigParser.RawConfigParser()
-        config.read(cfg_path)
-        config.remove_option("toolchains", self.name)
-        with open(cfg_path, "w") as fp:
-            config.write(fp)
-
-        cfg_path = self._get_config_path()
-        qibuild.sh.rm(cfg_path)
-
-
-    def _get_config_path(self):
-        """ Returns path to self configuration file
-
-        """
-        config_path = qibuild.sh.to_native_path(CONFIG_PATH)
-        config_path = os.path.join(config_path, "toolchains")
-        qibuild.sh.mkdir(config_path, recursive=True)
-        config_path = os.path.join(config_path, self.name + ".cfg")
-        return config_path
+        storage_path = get_tc_storage_path(self.name)
+        qibuild.sh.rm(storage_path)
 
     def _get_cache_path(self):
         """ Returns path to self cache directory
@@ -226,65 +227,41 @@ class Toolchain:
         qibuild.sh.mkdir(cache_path, recursive=True)
         return cache_path
 
-    def load_config(self):
-        """ Parse configuration, update toolchain file
-        when done
+    def dump(self):
+        """ Dump self to the storage path
 
         """
-        self.feed = get_tc_feed(self.name)
-        config_path = self._get_config_path()
-        configstore = qibuild.configstore.ConfigStore()
-        configstore.read(config_path)
-        packages_conf = configstore.get('package')
-        self.packages = list()
-        if packages_conf:
-            for (package_name, package_conf) in packages_conf.iteritems():
-                package_path = package_conf.get('path')
-                if not package_path:
-                    mess  = "Invalid configuration for toolchain %s\n" % self.name
-                    mess += "(from '%s')\n" % config_path
-                    mess += "Package %s has no 'path' setting" % package_name
-                    raise Exception(mess)
-                package_tc_file = package_conf.get('toolchain_file')
-                package = Package(package_name, package_path, package_tc_file)
-                self.packages.append(package)
-
-        self.update_toolchain_file()
+        storage_path = get_tc_storage_path(self.name)
+        to_create = os.path.dirname(storage_path)
+        qibuild.sh.mkdir(to_create, recursive=True)
+        with open(storage_path, "w") as fp:
+            pickle.dump(self, fp)
 
     def add_package(self, package):
         """ Add a package to the list
+        If a package with the same name already exists,
+        it will be replaced
 
         """
-        config_path = self._get_config_path()
-        qibuild.configstore.update_config(config_path,
-            'package "%s"' % package.name,
-            "path",
-            package.path)
-        if package.toolchain_file:
-            qibuild.configstore.update_config(config_path,
-            'package "%s"' % package.name,
-            "toolchain_file",
-            package.toolchain_file)
-        self.load_config()
+        self.packages = [p for p in self.packages if
+                p.name != package.name]
+        self.packages.insert(0, package)
+        self.update_toolchain_file()
+        self.dump()
 
     def remove_package(self, name):
-        """ Remove a package from the list
+        """ Remove a package from the list.
+        An exception is raised if the package name is not found
+        in this toolchain
 
         """
-        cfg_path = self._get_config_path()
-        config = ConfigParser.RawConfigParser()
-        config.read(cfg_path)
-        package_section = 'package "%s"' % name
-        if not config.has_section(package_section):
-            mess  = "Could not remove package %s from toolchain %s\n" % (name, self.name)
-            mess += "No such package"
-            raise Exception(mess)
-        config.remove_section(package_section)
+        if name not in [p.name for p in self.packages]:
+            raise Exception("No such package: %s" % name)
+        self.packages = [p for p in self.packages if
+                p.name != name]
+        self.update_toolchain_file()
+        self.dump()
 
-        with open(cfg_path, "w") as fp:
-            config.write(fp)
-
-        self.load_config()
 
     def update_toolchain_file(self):
         """ Generates a toolchain file for use by qibuild
@@ -324,15 +301,9 @@ class Toolchain:
         # Delegate this to qitoolchain.feed module
         qitoolchain.feed.parse_feed(self, feed, dry_run=dry_run)
 
-        # Update configuration so we keep which was
-        # the last used feed
         self.feed = feed
-        config = ConfigParser.ConfigParser()
-        config_path = get_tc_config_path()
-        config.read(config_path)
-        config.set("toolchains", self.name, self.feed)
-        with open(config_path, "w") as fp:
-            config.write(fp)
+        self.update_toolchain_file()
+        self.dump()
 
     def get(self, package_name):
         """ Get the path to a package

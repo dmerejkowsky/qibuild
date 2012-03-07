@@ -22,7 +22,7 @@ def configure_parser(parser):
 def do(args):
     """ Main entry point  """
     tc_name = args.name
-    toolchain = qitoolchain.Toolchain(tc_name)
+    toolchain = qitoolchain.open_toolchain(tc_name)
     LOGGER.info("Removing toolchain %s", tc_name)
     toolchain.remove()
     LOGGER.info("Done removing toolchain %s", tc_name)

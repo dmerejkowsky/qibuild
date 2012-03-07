@@ -174,7 +174,7 @@ class Toc(WorkTree):
         self.toolchain = None
         if self.active_config is not None:
             if self.active_config in qitoolchain.get_tc_names():
-                self.toolchain = qitoolchain.Toolchain(self.active_config)
+                self.toolchain = qitoolchain.open_toolchain(self.active_config)
                 self.packages  = self.toolchain.packages
             else:
                 # The config does not match a toolchain

@@ -11,7 +11,8 @@ import sys
 import logging
 import hashlib
 import urlparse
-from xml.etree import ElementTree
+from StringIO import StringIO
+from xml.etree import ElementTree as etree
 
 import qibuild
 import qitoolchain
@@ -24,7 +25,7 @@ def raise_parse_error(package_tree, feed, message):
     package_tree element.
 
     """
-    as_str = ElementTree.tostring(package_tree)
+    as_str = etree.tostring(package_tree)
     mess  = "Error when parsing feed: '%s'\n" % feed
     mess += "Could not parse:\t%s\n" % as_str
     mess += message
@@ -43,7 +44,7 @@ def tree_from_feed(feed_location):
             fp = open(feed_location, "r")
         else:
             fp = qitoolchain.remote.open_remote_location(feed_location)
-        tree = ElementTree.ElementTree()
+        tree = etree.ElementTree()
         tree.parse(fp)
     except Exception, e:
         mess  = "Could not parse %s\n" % feed_location
@@ -69,6 +70,10 @@ def handle_package(package, package_tree, toolchain):
         raise_parse_error(package_tree, feed, "Missing 'name' attribute")
 
     package.name = name
+    # set package.feed so that toolchain will know where the package
+    # came from
+    package.feed = feed
+    package.version = package_tree.get("version")
     if package_tree.get("url"):
         handle_remote_package(feed, package, package_tree, toolchain)
     if package_tree.get("directory"):
@@ -215,10 +220,11 @@ def parse_feed(toolchain, feed, dry_run=False):
     """ Helper for toolchain.parse_feed
 
     """
-    # Reset toolchain.packages:
-    package_names = [package.name for package in toolchain.packages]
-    for package_name in package_names:
-        toolchain.remove_package(package_name)
+    # Remove every package that came from a feed
+    # (thus keeping the packages added directly)
+    for package in toolchain.packages:
+        if package.feed:
+            toolchain.remove_package(package.name)
     parser = ToolchainFeedParser()
     parser.parse(feed)
     package_trees = parser.packages
@@ -247,7 +253,7 @@ def parse_feed(toolchain, feed, dry_run=False):
             handle_package(package, package_tree, toolchain)
         if package.path is None:
             mess  = "could guess package path from this configuration:\n"
-            mess += ElementTree.tostring(package_tree)
+            mess += etree.tostring(package_tree)
             mess += "Please make sure you have at least an url or a directory\n"
             LOGGER.warning(mess)
             continue
@@ -260,3 +266,23 @@ def parse_feed(toolchain, feed, dry_run=False):
             print error
         sys.exit(2)
 
+def add_package_to_feed(feed_xml, name, url, version=None):
+    """ Add a package to a xml feed
+    :param feed_xml: string contents of the feed
+    :param name: the name of the package
+    :param url: the url of the package
+    :param version:  (optional) the version of the package
+    :returns: the new xml contents as string
+
+    """
+    tree = etree.ElementTree()
+    tree.parse(feed_xml)
+    package_elem = etree.Element("package")
+    package_elem.set("name", name)
+    package_elem.set("url", url)
+    if version:
+        package_elem.set("version", version)
+    root = tree.getroot()
+    root.append(package_elem)
+    out = StringIO()
+    tree.write(feed_xml)
