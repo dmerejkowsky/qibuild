@@ -472,7 +472,6 @@ class Toc(WorkTree):
         environment variable
 
         """
-        build_dir = project.build_directory
         sdk_dir   = project.sdk_directory
 
         paths = list()
