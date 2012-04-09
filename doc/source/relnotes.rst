@@ -3,6 +3,29 @@
 qiBuild release notes
 =====================
 
+What's new in qibuild 1.14
+---------------------------
+
+CMake
++++++
+
+:cmake:function:`qi_use_lib` and :cmake:function:`qi_stage_lib`
+have gone through lots of changes.
+
+You can now use a ``staged_name``, thus doing things like
+
+.. code-block:: cmake
+
+   qi_create_lib(myfoo foo.cpp)
+   qi_stage_lib(myfoo foo)
+
+   qi_use_lib(bar foo)
+
+Also, even if ``qibuild configure`` is now a bit slower,
+running ``cmake ..`` after is much more faster.
+Since ``cmake ..`` is frequently called by ``qtcreator`` or
+``Visual Studio``, this is in fact a nice performance improvment.
+
 What's new in qibuild 1.12.1
 -----------------------------
 
@@ -51,6 +74,17 @@ global settings (stylesheets, templates, etc.) in on place
 
 Full Changelog
 --------------
+
+1.14.1
++++++++
+
+Misc
+~~~~
+
+Now using ``tox`` and ``py.test`` to run continuous testing
+on qibuild.
+It now becomes much easier to run qibuild tests or build qibuild
+documentation.
 
 1.12.1
 ++++++
