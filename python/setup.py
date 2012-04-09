@@ -33,8 +33,8 @@ package_data = {
 
 
 setup(name = 'qibuild',
-      version = "0.1",
-      description = "The qiBuild Framework",
+      version = "1.14",
+      description = "Compilation of C++ projects made easy!",
       author = "Aldebaran Robotics",
       author_email = "qi-dev@aldebaran-robotics.com",
       packages = packages,
@@ -42,5 +42,3 @@ setup(name = 'qibuild',
       license = "BSD",
       scripts = scripts
 )
-
-
