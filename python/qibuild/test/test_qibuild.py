@@ -12,8 +12,8 @@ import re
 import sys
 import difflib
 
+import pytest
 import unittest
-import qibuild
 import qibuild
 
 
@@ -23,6 +23,8 @@ except ImportError:
     from qibuild.external import argparse
 
 
+# pylint: disable-msg=E1101
+@pytest.mark.slow
 class QiBuildTestCase(unittest.TestCase):
     def setUp(self):
         self.test_dir = os.path.abspath(os.path.dirname(__file__))
