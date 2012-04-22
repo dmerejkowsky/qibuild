@@ -171,6 +171,8 @@ File Paths
 
 * Always store and manipulate native paths (using ``os.path``), and if needed
   convert to POSIX or Windows format at the last moment.
+  Native paths are also *always* stored as ``str`` objects, not ``unicode``
+  (See :ref:`qibuild-coding-guide-string-unicode`)
 
 .. note:: If you need to build POSIX paths, don't use string operations
    either, use `posixpath.join`  (This works really well to build URL, for
@@ -221,6 +223,73 @@ A small example::
   build_env = envsetter.get_build_env()
   cmd = ["foobar", "/spam:eggs"]
   qibuild.command.call(cmd, env=build_env)
+
+
+.. _qibuild-coding-guide-string-unicode:
+
+Strings and Unicode
+--------------------
+
+What will be a Python coding guide not mentionning this subject ?
+
+Principle
++++++++++
+
+ - Assume every file is UTF-8 encoded (FIXME : check what CMake does with toolchain files ...)
+ - Store every configuration strings as ``unicode`` types
+ - Store file paths as ``str`` types. (Because they will directly be used by the OS)
+ - Convert input from user from ``str`` to ``unicode`` as soon as possible
+ - Convert output from qibuild to OS from ``unicode`` to ``str`` at the last moment
+
+Convention (for local variables only)
++++++++++++++++++++++++++++++++++++++
+
+  - Unicode types are prefixed with `u_`
+  - String types are prefixed with `b_`
+
+Small examples:
+
+.. code-block:: python
+
+    # A file path: we know it's a ``str`` and a absolute, native path:
+    b_project_dir = project.directory
+    # So this should work:
+    cmake = os.path.join(b_project_dir, project.directory)
+
+    # Read from configuration: we know it's a ``unicode``
+    u_build_type = toc.build_type
+    # Will be sent to the OS: so we need to convert to ``str``:
+    b_build_type = u_build_type.encode("UTF-8")
+    cmake_args = ["-DCMAKE_BUILD_TYPE=%s" % b_build_type]
+
+
+    # Read from the comman line: it's a ``str``
+    b_project_name = args.name
+    # Using internal strings variables, we need to convert to ``unicode``:
+    u_project_name = b_project_name.decode("UTF-8")
+    project = toc.get_project(u_project_name)
+
+
+Rationale
++++++++++
+
+* If you are creating a local variable and don't know if it's a ``str`` or a
+  ``unicode``, we know we have a bug waiting to happen ...
+
+* Such a convention will make it much easier to port qibuild to Python3 in the
+  future  (the ``b_`` prefix obviously means ``bytes``)
+
+* It also creates two easy to remember patterns:
+
+.. code-block:: python
+
+  b_<foo>  = u_<foo>.encode("UTF-8")
+  u_<foo>  = b_<foo>.decode("UTF-8")
+
+
+* We really want qibuild to be usbable everywhere, and not force people to
+  have a specific locale.
+
 
 
 Logging
