@@ -161,6 +161,7 @@ def run_tests(project, build_env, test_name=None):
             ok = False
             sys.stdout.write("[FAIL]\n")
             print test_res.out
+            print test_res.message
             fail_tests.append(test_name)
         xml_out = os.path.join(results_dir, test_name + ".xml")
         if not os.path.exists(xml_out):
