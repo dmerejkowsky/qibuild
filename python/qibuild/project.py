@@ -146,30 +146,38 @@ def update_project(project, toc):
 
     """
     # Handle custom global build directory containing all projects
-    singlebdir = toc.config.local.build.build_dir
-    if singlebdir:
-        singlebdir = os.path.expanduser(singlebdir)
-        if not os.path.isabs(singlebdir):
-            singlebdir = os.path.join(toc.work_tree, singlebdir)
-        bname = os.path.join("build-%s" % (toc.build_folder_name), project.name)
-        project.build_directory = os.path.normpath(os.path.join(singlebdir, bname))
+    u_toc_bname = toc.build_folder_name
+    b_toc_bname = u_toc_bname.encode("UTF-8")
+    u_singlebdir = toc.config.local.build.build_dir
+    u_p_name = project.name
+    b_p_name = u_p_name.encode("UTF-8")
+    if u_singlebdir:
+        b_singlebdir = u_singlebdir.encode("UTF-8")
+        b_singlebdir = os.path.expanduser(b_singlebdir)
+        if not os.path.isabs(b_singlebdir):
+            b_singlebdir = os.path.join(toc.work_tree, b_singlebdir)
+        bname = os.path.join("build-%s" % b_toc_bname, b_p_name)
+        project.build_directory = os.path.normpath(os.path.join(b_singlebdir, bname))
     else:
-        bname = "build-%s" % (toc.build_folder_name)
+        bname = "build-%s" % b_toc_bname
         project.build_directory = os.path.join(project.directory, bname)
 
 
     # Handle single sdk dir
-    sdk_dir = toc.config.local.build.sdk_dir
-    if sdk_dir:
-        if os.path.isabs(sdk_dir):
-            project.sdk_directory = sdk_dir
+    u_sdk_dir = toc.config.local.build.sdk_dir
+    if u_sdk_dir:
+        b_sdk_dir = u_sdk_dir.encode("UTF-8")
+        if os.path.isabs(b_sdk_dir):
+            project.sdk_directory = b_sdk_dir
         else:
-            project.sdk_directory = os.path.join(toc.work_tree, sdk_dir)
-        bname = "sdk-%s" % (toc.build_folder_name)
-        project.sdk_directory = os.path.normpath(os.path.join(project.sdk_directory, bname))
+            project.sdk_directory = os.path.join(toc.work_tree, b_sdk_dir)
+        u_bname = "sdk-%s" % (toc.build_folder_name)
+        b_bname = u_bname.encode("UTF-8")
+        project.sdk_directory = os.path.normpath(os.path.join(project.sdk_directory, b_bname))
         project._custom_sdk_dir = True
-        cmake_sdk_dir = qibuild.sh.to_posix_path(project.sdk_directory)
-        project.cmake_flags.append("QI_SDK_DIR=%s" % (cmake_sdk_dir))
+        b_cmake_sdk_dir = qibuild.sh.to_posix_path(project.sdk_directory)
+        u_cmake_sdk_dir = b_cmake_sdk_dir.decode("UTF-8")
+        project.cmake_flags.append("QI_SDK_DIR=%s" % (u_cmake_sdk_dir))
     else:
         #normal sdk dir in buildtree
         project.sdk_directory   = os.path.join(project.build_directory, "sdk")
@@ -187,12 +195,15 @@ def update_project(project, toc):
     if toc.toolchain is not None:
         tc_file = toc.toolchain.toolchain_file
         toolchain_path = qibuild.sh.to_posix_path(tc_file)
-        project.cmake_flags.append('CMAKE_TOOLCHAIN_FILE=%s' % toolchain_path)
+        u_toolchain_path = toolchain_path.decode("UTF-8")
+        project.cmake_flags.append('CMAKE_TOOLCHAIN_FILE=%s' % u_toolchain_path)
 
     # lastly, add a correct -DCMAKE_MODULE_PATH
     cmake_qibuild_dir = qibuild.cmake.get_cmake_qibuild_dir()
-    qibuild_dir = os.path.join(cmake_qibuild_dir, "qibuild")
-    project.cmake_flags.append("qibuild_DIR=%s" % qibuild_dir)
+    b_qibuild_dir = os.path.join(cmake_qibuild_dir, "qibuild")
+    u_qibuild_dir = b_qibuild_dir.decode("UTF-8")
+    project.cmake_flags.append("qibuild_DIR=%s" % u_qibuild_dir)
+
 
 
 def bootstrap_project(project, toc):
@@ -230,10 +241,11 @@ set(CMAKE_FIND_ROOT_PATH ${{CMAKE_FIND_ROOT_PATH}} CACHE INTERNAL ""  FORCE)
 {custom_cmake_code}
 """
     custom_cmake_code = ""
-    config = toc.active_config
-    if config:
+    u_config = toc.active_config
+    if u_config:
+        b_config = u_config.encode("UTF-8")
         local_dir = os.path.join(toc.work_tree, ".qi")
-        local_cmake = os.path.join(local_dir, "%s.cmake" % config)
+        local_cmake = os.path.join(local_dir, "%s.cmake" % b_config)
         if os.path.exists(local_cmake):
             custom_cmake_code += 'include("%s")\n' % \
                 qibuild.sh.to_posix_path(local_cmake)

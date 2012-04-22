@@ -34,6 +34,7 @@ You can use:
 """
 
 import os
+import codecs
 import shlex
 import logging
 import ConfigParser
@@ -195,10 +196,15 @@ class ConfigStore:
         return ret
 
     def read(self, filename):
-        """ read a configuration file """
+        """ read a configuration file
+
+        The text filename is assumed to be UTF-8 encoded.
+        Key names et al will be of type 'unicode', not 'str'
+        """
         self.logger.debug("loading: %s", filename)
         parser = ConfigParser.RawConfigParser()
-        parser.read(filename)
+        if os.path.exists(filename):
+            parser.readfp(codecs.open(filename, "r", "UTF-8"))
         parsed_sections = parser.sections()
         for parsed_section in parsed_sections:
             splitted_section = shlex.split(parsed_section)
@@ -257,7 +263,8 @@ def update_config(config_path, section, key, value):
 
     """
     parser = ConfigParser.ConfigParser()
-    parser.read(config_path)
+    if os.path.exists(config_path):
+        parser.readfp(codecs.open(config_path, "r", "UTF-8"))
     if not parser.has_section(section):
         parser.add_section(section)
     if type(value) == type(""):
@@ -265,7 +272,7 @@ def update_config(config_path, section, key, value):
     if type(value) == type([""]):
         parser.set(section, key, " ".join(value))
     qibuild.sh.mkdir(os.path.dirname(config_path), recursive=True)
-    with open(config_path, "w") as config_file:
+    with codecs.open(config_path, "w", "UTF-8") as config_file:
         parser.write(config_file)
 
 

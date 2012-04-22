@@ -20,6 +20,6 @@ def do(args):
     tc_names = qitoolchain.get_tc_names()
     print "Known toolchains:"
     for tc_name in tc_names:
-        print "  ", tc_name
+        print "  ", tc_name.encode("UTF-8", "ignore")
     print
     print "Use ``qitoolchain info <tc_name>`` for more info"

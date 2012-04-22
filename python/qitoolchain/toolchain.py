@@ -7,6 +7,7 @@ A set of packages and a toolchain file
 """
 
 import os
+import codecs
 import ConfigParser
 
 import qibuild
@@ -26,7 +27,7 @@ def get_default_packages_path(tc_name):
     default_root = os.path.join(default_root, "toolchains")
     config = ConfigParser.ConfigParser()
     cfg_path = get_tc_config_path()
-    config.read(cfg_path)
+    config.readfp(codecs.open(cfg_path, "r", "UTF-8"))
     root = default_root
     if config.has_section("default"):
         try:
@@ -48,7 +49,8 @@ def get_tc_names():
         linux64=/path/to/linux64/feed.xxml
     """
     config = ConfigParser.ConfigParser()
-    config.read(get_tc_config_path())
+    tc_config_path = get_tc_config_path()
+    config.readfp(codecs.open(tc_config_path, "r", "UTF-8"))
     if not config.has_section('toolchains'):
         return list()
     tc_items = config.items('toolchains')
@@ -61,7 +63,7 @@ def get_tc_feed(tc_name):
 
     """
     config = ConfigParser.ConfigParser()
-    config.read(get_tc_config_path())
+    config.readfp(codecs.open(get_tc_config_path(), "r", "UTF-8"))
     if not config.has_section('toolchains'):
         return None
     return config.get('toolchains', tc_name)
@@ -145,7 +147,8 @@ class Toolchain:
         self.name = name
         self.packages = list()
         self.cache = self._get_cache_path()
-        self.toolchain_file  = os.path.join(self.cache, "toolchain-%s.cmake" % self.name)
+        self.toolchain_file  = os.path.join(self.cache,
+            "toolchain-%s.cmake" % self.name.encode("UTF-8"))
         # Stored in general config file when using self.parse_feed,
         # updated by self.load_config()
         self.feed = None
@@ -154,11 +157,11 @@ class Toolchain:
         if not self.name in get_tc_names():
             config = ConfigParser.ConfigParser()
             config_path = get_tc_config_path()
-            config.read(config_path)
+            config.readfp(codecs.open(config_path, "r", "UTF-8"))
             if not config.has_section("toolchains"):
                 config.add_section("toolchains")
             config.set("toolchains", self.name, "")
-            with open(config_path, "w") as fp:
+            with codecs.open(config_path, "w", "UTF-8") as fp:
                 config.write(fp)
 
         self.cmake_flags = list()
@@ -188,9 +191,9 @@ class Toolchain:
 
         cfg_path = get_tc_config_path()
         config = ConfigParser.RawConfigParser()
-        config.read(cfg_path)
+        config.readfp(codecs.open(cfg_path, "r", "UTF-8"))
         config.remove_option("toolchains", self.name)
-        with open(cfg_path, "w") as fp:
+        with codecs.open(cfg_path, "w", "UTF-8") as fp:
             config.write(fp)
 
         cfg_path = self._get_config_path()
@@ -204,7 +207,8 @@ class Toolchain:
         config_path = qibuild.sh.to_native_path(CONFIG_PATH)
         config_path = os.path.join(config_path, "toolchains")
         qibuild.sh.mkdir(config_path, recursive=True)
-        config_path = os.path.join(config_path, self.name + ".cfg")
+        b_name = self.name.encode("UTF-8")
+        config_path = os.path.join(config_path, b_name + ".cfg")
         return config_path
 
     def _get_cache_path(self):
@@ -213,16 +217,18 @@ class Toolchain:
         """
         config_path = get_tc_config_path()
         config = ConfigParser.ConfigParser()
-        config.read(config_path)
+        config.readfp(codecs.open(config_path, "r", "UTF-8"))
         cache_path = qibuild.sh.to_native_path(CACHE_PATH)
         cache_path = os.path.join(cache_path, "toolchains")
         if config.has_section("default"):
             try:
-                root_cfg = config.get("default", "root")
-                cache_path = os.path.join(root_cfg, "cache")
+                u_root_cfg = config.get("default", "root")
+                b_root_cfg = u_root_cfg.encode("UTF-8")
+                cache_path = os.path.join(b_root_cfg, "cache")
             except ConfigParser.NoOptionError:
                 pass
-        cache_path = os.path.join(cache_path, self.name)
+        b_name = self.name.encode("UTF-8")
+        cache_path = os.path.join(cache_path, b_name)
         qibuild.sh.mkdir(cache_path, recursive=True)
         return cache_path
 
@@ -281,7 +287,7 @@ class Toolchain:
             raise Exception(mess)
         config.remove_section(package_section)
 
-        with open(cfg_path, "w") as fp:
+        with codecs.open(cfg_path, "w", "UTF-8") as fp:
             config.write(fp)
 
         self.load_config()
@@ -329,9 +335,9 @@ class Toolchain:
         self.feed = feed
         config = ConfigParser.ConfigParser()
         config_path = get_tc_config_path()
-        config.read(config_path)
+        config.readfp(codecs.open(config_path, "r", "UTF-8"))
         config.set("toolchains", self.name, self.feed)
-        with open(config_path, "w") as fp:
+        with codecs.open(config_path, "w", "UTF-8") as fp:
             config.write(fp)
 
     def get(self, package_name):

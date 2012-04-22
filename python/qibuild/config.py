@@ -10,12 +10,7 @@
 import os
 import operator
 
-HAS_LXML = False
-try:
-    from lxml import etree
-    HAS_LXML = True
-except ImportError:
-    from xml.etree import ElementTree as etree
+from xml.etree import ElementTree as etree
 from StringIO import StringIO
 
 import qibuild
@@ -232,11 +227,11 @@ class Defaults:
         res = ""
         if self.ide:
             res += "  defaults.ide: %s\n" % self.ide
-        cmake_str = unicode(self.cmake)
-        if cmake_str:
-            res += indent(cmake_str) + "\n"
-        env_str = unicode(self.env)
-        if env_str:
+        u_cmake = unicode(self.cmake)
+        if u_cmake:
+            res += indent(u_cmake) + "\n"
+        u_env = unicode(self.env)
+        if u_env:
             res += indent(env_str) + "\n"
         return res
 
@@ -294,10 +289,10 @@ class Server:
 
     def __unicode__(self):
         res = self.name
-        access_str = unicode(self.access)
-        if access_str:
+        u_access = unicode(self.access)
+        if u_access:
             res += "\n"
-            res += indent(access_str)
+            res += indent(u_access)
         return res
 
 class LocalSettings:
@@ -329,18 +324,18 @@ class LocalSettings:
 
     def __unicode__(self):
         res = ""
-        defaults_str = unicode(self.defaults)
-        if defaults_str:
+        u_defaults = unicode(self.defaults)
+        if u_defaults:
             res += "default settings for this worktree:\n"
-            res += indent(defaults_str) + "\n"
-        build_str = unicode(self.build)
-        if build_str:
+            res += indent(u_defaults) + "\n"
+        u_build = unicode(self.build)
+        if u_build:
             res += "build settings for this worktree:\n"
-            res += indent(build_str) + "\n"
-        manifest_str = unicode(self.manifest)
-        if manifest_str:
+            res += indent(u_build) + "\n"
+        u_manifest = unicode(self.manifest)
+        if u_manifest:
             res += "qisrc manifest:\n"
-            res += indent(manifest_str) + "\n"
+            res += indent(u_manifest) + "\n"
         return res
 
 
@@ -430,13 +425,13 @@ class Config:
         res += "\n"
         if self.ide:
             res += "  ide: %s\n" % self.ide
-        env_str = unicode(self.env)
-        if env_str:
-            res += indent(env_str)
+        u_env = unicode(self.env)
+        if u_env:
+            res += indent(u_env)
             res += "\n"
-        cmake_str = unicode(self.cmake)
-        if cmake_str:
-            res += indent(cmake_str)
+        u_cmake = unicode(self.cmake)
+        if u_cmake:
+            res += indent(u_cmake)
             res += "\n"
         return res
 
@@ -528,7 +523,7 @@ class QiBuildConfig:
     def read_local_config(self, local_xml_path):
         """ Apply a local configuration """
         try:
-            local_tree = etree.parse(local_xml_path)
+            local_tree = etree.parse(local_xml_path, parser=etree.XMLParser(encoding="UTF-8"))
         except Exception, e:
             raise_parse_error(e, local_xml_path)
         self.local.parse(local_tree)
@@ -538,12 +533,8 @@ class QiBuildConfig:
         """ Dump local settings to a xml file """
         local_tree = self.local.tree()
         tree = etree.ElementTree(element=local_tree)
-        if HAS_LXML:
-            # pylint: disable-msg=E1123
-            tree.write(local_xml_path, pretty_print=True)
-        else:
-            xml_indent(tree.getroot())
-            tree.write(local_xml_path)
+        xml_indent(tree.getroot())
+        tree.write(local_xml_path, encoding="UTF-8")
 
     def merge_configs(self):
         """ Merge various configs
@@ -688,24 +679,20 @@ class QiBuildConfig:
             qibuild_tree.append(server_tree)
 
         tree = etree.ElementTree(element=qibuild_tree)
-        if HAS_LXML:
-            # pylint: disable-msg=E1123
-            tree.write(xml_path, pretty_print=True)
-        else:
-            xml_indent(tree.getroot())
-            tree.write(xml_path)
+        xml_indent(tree.getroot())
+        tree.write(xml_path, encoding="UTF-8")
 
     def __unicode__(self):
         res = ""
-        build_str = unicode(self.build)
-        if build_str:
+        u_build = unicode(self.build)
+        if u_build:
             res += "build:\n"
-            res += indent(build_str) + "\n"
+            res += indent(u_build) + "\n"
             res += "\n"
-        defaults_str = unicode(self.defaults)
-        if defaults_str:
+        u_defaults = unicode(self.defaults)
+        if u_defaults:
             res += "defaults:\n"
-            res += indent(defaults_str) + "\n"
+            res += indent(u_defaults) + "\n"
             res += "\n"
         configs = self.configs.values()
         configs.sort(key = operator.attrgetter('name'))
@@ -748,7 +735,7 @@ class ProjectConfig:
 
         """
         try:
-            self.tree.parse(cfg_path)
+            self.tree.parse(cfg_path, parser=etree.XMLParser(encoding="UTF-8"))
         except Exception, e:
             mess  = "Could not parse config from %s\n" % cfg_path
             mess += "Error was: %s" % str(e)
@@ -811,12 +798,8 @@ class ProjectConfig:
             build_tree.set("names", " ".join(build_only))
             project_tree.append(build_tree)
 
-        if HAS_LXML:
-            # pylint: disable-msg=E1123
-            self.tree.write(location, pretty_print=True)
-        else:
-            xml_indent(project_tree)
-            self.tree.write(location)
+        xml_indent(project_tree)
+        self.tree.write(location, encoding="UTF-8")
 
     def __unicode__(self):
         res = ""

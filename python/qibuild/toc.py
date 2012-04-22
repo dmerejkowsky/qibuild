@@ -134,7 +134,7 @@ class Toc(WorkTree):
         else:
             self.config = config
         self.config.read_local_config(self.config_path)
-        self.active_config = self.config.active_config.encode("UTF-8")
+        self.active_config = self.config.active_config
 
         self.build_type = build_type
         if not self.build_type:
@@ -163,7 +163,7 @@ class Toc(WorkTree):
 
         # Set cmake generator if user has not set if in Toc ctor:
         if not self.cmake_generator:
-            self.cmake_generator = self.config.cmake.generator.encode("UTF-8")
+            self.cmake_generator = self.config.cmake.generator
             if not self.cmake_generator:
                 self.cmake_generator = "Unix Makefiles"
 
@@ -178,7 +178,8 @@ class Toc(WorkTree):
             else:
                 # The config does not match a toolchain
                 local_dir = os.path.join(self.work_tree, ".qi")
-                local_cmake = os.path.join(local_dir, "%s.cmake" % self.active_config)
+                b_active_config = self.active_config.encode("UTF-8")
+                local_cmake = os.path.join(local_dir, "%s.cmake" % b_active_config)
                 if not os.path.exists(local_cmake):
                     mess  = """Invalid configuration {active_config}
  * No toolchain named {active_config}. Known toolchains are:
@@ -186,7 +187,7 @@ class Toc(WorkTree):
  * No custom cmake file for config {active_config} found.
    (looked in {local_cmake})
 """
-                    raise TocException(mess.format(active_config=self.active_config,
+                    raise TocException(mess.format(active_config=b_active_config,
                         local_cmake = local_cmake,
                         tc_names = qitoolchain.get_tc_names()))
 
@@ -372,13 +373,14 @@ class Toc(WorkTree):
             `qibuild configure`.
 
         """
-        if not os.path.exists(project.directory):
-            raise TocException("source dir: %s does not exist, aborting" % project.directory)
-        cmake_file = os.path.join(project.directory, "CMakeLists.txt")
+        b_src_dir = project.directory
+        if not os.path.exists(b_src_dir):
+            raise TocException("source dir: %s does not exist, aborting" % b_src_dir)
+        cmake_file = os.path.join(b_src_dir, "CMakeLists.txt")
         if not os.path.exists(cmake_file):
-            mess = """{project.name} does not look like a valid CMake project!
-        (No CMakeLists.txt in {project.directory})
-        """.format(project=project)
+            mess = """{p_name} does not look like a valid CMake project!
+        (No CMakeLists.txt in {p_directory})
+        """.format(p_name=project.name.encode("UTF-8"), p_directory=project.directory)
             raise TocException(mess)
 
         # Generate the dependencies.cmake just in time:
@@ -387,13 +389,13 @@ class Toc(WorkTree):
         # Set generator if necessary
         cmake_args = list()
         if self.cmake_generator:
-            cmake_args.extend(["-G", self.cmake_generator])
+            cmake_args.extend(["-G", self.cmake_generator.encode("UTF-8")])
 
         cmake_flags = list()
         cmake_flags.extend(project.cmake_flags)
 
 
-        cmake_args.extend(["-D" + x for x in cmake_flags])
+        cmake_args.extend(["-D" + x.encode("UTF-8") for x in cmake_flags])
 
         if "MinGW" in self.cmake_generator:
             paths = self.build_env["PATH"].split(os.pathsep)
@@ -402,10 +404,11 @@ class Toc(WorkTree):
                 if not os.path.exists(os.path.join(p, "sh.exe")):
                     paths_withoutsh.append(p)
             self.build_env["PATH"] = os.pathsep.join(paths_withoutsh)
+        b_build_dir = project.build_directory
 
         try:
-            qibuild.cmake.cmake(project.directory,
-                          project.build_directory,
+            qibuild.cmake.cmake(b_src_dir,
+                          b_build_dir,
                           cmake_args,
                           clean_first=clean_first,
                           env=self.build_env)
@@ -420,14 +423,17 @@ class Toc(WorkTree):
         we need to call `BuildConsole.exe` with an sln.
 
         """
+        u_target = target
+        b_target = u_target.encode("UTF-8")
+        b_build_type = self.build_type.encode("UTF-8")
         build_dir = project.build_directory
         cmake_cache = os.path.join(build_dir, "CMakeCache.txt")
         if not os.path.exists(cmake_cache):
             _advise_using_configure(self, project)
 
-        cmd = ["cmake", "--build", build_dir, "--config", self.build_type]
-        if target:
-            cmd += ["--target", target]
+        cmd = ["cmake", "--build", build_dir, "--config", b_build_type]
+        if b_target:
+            cmd += ["--target", b_target]
 
         if rebuild:
             cmd += ["--clean-first"]
@@ -442,7 +448,7 @@ class Toc(WorkTree):
                 cmd += ["/cfg=%s|Win32" % self.build_type]
                 cmd += ["/nologo"]
                 if target:
-                    cmd += ["/target=%s" % target]
+                    cmd += ["/target=%s" % b_target]
             else:
                 if num_jobs > 1 and "visual studio" in self.cmake_generator.lower():
                     cmd += ["/m:%d" % num_jobs]
@@ -492,7 +498,8 @@ class Toc(WorkTree):
             if runtime:
                 self.install_project_runtime(project, destdir)
             else:
-                cmd = ["cmake", "--build", build_dir, "--config", self.build_type,
+                cmd = ["cmake", "--build", build_dir,
+                        "--config", self.build_type.encode("UTF-8"),
                         "--target", "install"]
                 qibuild.command.call(cmd, env=self.build_env)
         except CommandFailedException:
@@ -539,8 +546,9 @@ def _projects_from_args(toc, args):
 
     if hasattr(args, "projects"):
         if args.projects:
+            u_projects = [x.decode("UTF-8") for x in args.projects]
             LOGGER.debug("select: projects list from arguments: %s", ",".join(args.projects))
-            return ([args.projects, args.single])
+            return ([u_projects, args.single])
         else:
             from_cwd = None
             try:
@@ -584,19 +592,23 @@ def toc_open(work_tree, args=None, qibuild_cfg=None):
 
     config = None
     if hasattr(args, 'config'):
-        config   = args.config
+        if args.config:
+            config   = args.config.decode("UTF-8")
 
     build_type = None
     if hasattr(args, 'build_type'):
-        build_type = args.build_type
+        if args.build_type:
+            build_type = args.build_type.decode("UTF-8")
 
     cmake_flags = list()
     if hasattr(args,'cmake_flags'):
-        cmake_flags = args.cmake_flags
+        if args.cmake_flags:
+            cmake_flags = [x.decode("UTF-8") for x in args.cmake_flags]
 
     cmake_generator = None
     if hasattr(args, 'cmake_generator'):
-        cmake_generator = args.cmake_generator
+        if args.cmake_generator:
+            cmake_generator = args.cmake_generator.decode("UTF-8")
 
     if not work_tree:
         work_tree = qibuild.worktree.guess_work_tree()

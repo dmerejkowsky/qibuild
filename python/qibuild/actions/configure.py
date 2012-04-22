@@ -41,9 +41,10 @@ def do(args):
         projects[0].set_custom_build_directory(args.build_directory)
 
     if toc.active_config:
-        logger.info("Active configuration: %s", toc.active_config)
+        logger.info("Active configuration: %s", toc.active_config.encode("UTF-8"))
     for project in projects:
-        logger.info("Configuring %s", project.name)
+        b_name = project.name.encode("UTF-8")
+        logger.info("Configuring %s", b_name)
         toc.configure_project(project, clean_first=args.clean_first)
 
 
