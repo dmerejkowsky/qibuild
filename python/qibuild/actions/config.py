@@ -52,17 +52,17 @@ def do(args):
         return
 
     if not toc:
-        print qibuild_cfg
+        print unicode(qibuild_cfg)
         return
 
     print "General configuration"
     print "---------------------"
-    print qibuild.config.indent(str(toc.config))
+    print qibuild.config.indent(unicode(toc.config))
     print
 
     print "Local configuration"
     print "-------------------"
-    print qibuild.config.indent(str(toc.config.local))
+    print qibuild.config.indent(unicode(toc.config.local))
 
     print
     print "Projects configuration"
@@ -71,7 +71,7 @@ def do(args):
     if projects:
         print "  Projects:"
         for project in projects:
-            print qibuild.config.indent(str(project.config), 2)
+            print qibuild.config.indent(unicode(project.config), 2)
 
 
 

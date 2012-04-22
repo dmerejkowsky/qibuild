@@ -30,7 +30,7 @@ def get_global_cfg_path():
     return res
 
 def indent(text, num=1):
-    """ Helper for __str__ methods
+    """ Helper for __unicode__ methods
 
     """
     return "\n".join(["  " * num + l for l in text.splitlines()])
@@ -103,7 +103,7 @@ class Env:
             tree.set("editor", self.editor)
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = ""
         if self.path:
             res += "env.path: %s\n" % self.path
@@ -133,7 +133,7 @@ class IDE:
             tree.set("path", self.path)
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = self.name
         res += "\n"
         if self.path:
@@ -156,7 +156,7 @@ class Build:
             tree.set("incredibuild", "true")
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = ""
         if self.incredibuild:
             res += "incredibuild: %s\n" % self.incredibuild
@@ -175,7 +175,7 @@ class CMake:
             tree.set("generator", self.generator)
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = ""
         if self.generator:
             res += "cmake.generator: %s\n" % self.generator
@@ -194,7 +194,7 @@ class Manifest:
             tree.set("url", self.url)
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = ""
         if self.url:
             res += "url: %s\n" % self.url
@@ -228,14 +228,14 @@ class Defaults:
         tree.append(cmake_tree)
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = ""
         if self.ide:
             res += "  defaults.ide: %s\n" % self.ide
-        cmake_str = str(self.cmake)
+        cmake_str = unicode(self.cmake)
         if cmake_str:
             res += indent(cmake_str) + "\n"
-        env_str = str(self.env)
+        env_str = unicode(self.env)
         if env_str:
             res += indent(env_str) + "\n"
         return res
@@ -261,7 +261,7 @@ class Access:
             tree.set("password", self.password)
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = ""
         if self.username:
             res += "username: %s\n" % self.username
@@ -292,9 +292,9 @@ class Server:
         tree.append(access_tree)
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = self.name
-        access_str = str(self.access)
+        access_str = unicode(self.access)
         if access_str:
             res += "\n"
             res += indent(access_str)
@@ -327,17 +327,17 @@ class LocalSettings:
             tree.append(self.manifest.tree())
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = ""
-        defaults_str = str(self.defaults)
+        defaults_str = unicode(self.defaults)
         if defaults_str:
             res += "default settings for this worktree:\n"
             res += indent(defaults_str) + "\n"
-        build_str = str(self.build)
+        build_str = unicode(self.build)
         if build_str:
             res += "build settings for this worktree:\n"
             res += indent(build_str) + "\n"
-        manifest_str = str(self.manifest)
+        manifest_str = unicode(self.manifest)
         if manifest_str:
             res += "qisrc manifest:\n"
             res += indent(manifest_str) + "\n"
@@ -358,7 +358,7 @@ class LocalDefaults:
             tree.set("config", self.config)
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = ""
         if self.config:
             res += "default config: %s\n" % self.config
@@ -383,7 +383,7 @@ class LocalBuild:
             tree.set("sdk_dir", self.sdk_dir)
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = ""
         if self.build_dir:
             res += "build_dir: %s\n" % self.build_dir
@@ -425,16 +425,16 @@ class Config:
         tree.append(cmake_tree)
         return tree
 
-    def __str__(self):
+    def __unicode__(self):
         res = self.name
         res += "\n"
         if self.ide:
             res += "  ide: %s\n" % self.ide
-        env_str = str(self.env)
+        env_str = unicode(self.env)
         if env_str:
             res += indent(env_str)
             res += "\n"
-        cmake_str = str(self.cmake)
+        cmake_str = unicode(self.cmake)
         if cmake_str:
             res += indent(cmake_str)
             res += "\n"
@@ -527,7 +527,10 @@ class QiBuildConfig:
 
     def read_local_config(self, local_xml_path):
         """ Apply a local configuration """
-        local_tree = etree.parse(local_xml_path)
+        try:
+            local_tree = etree.parse(local_xml_path)
+        except Exception, e:
+            raise_parse_error(e, local_xml_path)
         self.local.parse(local_tree)
         self.merge_configs()
 
@@ -692,14 +695,14 @@ class QiBuildConfig:
             xml_indent(tree.getroot())
             tree.write(xml_path)
 
-    def __str__(self):
+    def __unicode__(self):
         res = ""
-        build_str = str(self.build)
+        build_str = unicode(self.build)
         if build_str:
             res += "build:\n"
             res += indent(build_str) + "\n"
             res += "\n"
-        defaults_str = str(self.defaults)
+        defaults_str = unicode(self.defaults)
         if defaults_str:
             res += "defaults:\n"
             res += indent(defaults_str) + "\n"
@@ -709,7 +712,7 @@ class QiBuildConfig:
         if configs:
             res += "configs:\n"
             for config in configs:
-                res += indent(str(config))
+                res += indent(unicode(config))
                 res += "\n"
             res += "\n"
         ides = self.ides.values()
@@ -717,7 +720,7 @@ class QiBuildConfig:
         if ides:
             res += "ides:\n"
             for ide in ides:
-                res += indent(str(ide))
+                res += indent(unicode(ide))
                 res += "\n"
             res += "\n"
         servers = self.servers.values()
@@ -725,7 +728,7 @@ class QiBuildConfig:
         if servers:
             res += "servers:\n"
             for server in servers:
-                res += indent(str(server))
+                res += indent(unicode(server))
                 res += "\n"
         return res
 
@@ -815,7 +818,7 @@ class ProjectConfig:
             xml_indent(project_tree)
             self.tree.write(location)
 
-    def __str__(self):
+    def __unicode__(self):
         res = ""
         res += self.name
         if self.depends:

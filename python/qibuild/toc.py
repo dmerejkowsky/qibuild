@@ -134,7 +134,7 @@ class Toc(WorkTree):
         else:
             self.config = config
         self.config.read_local_config(self.config_path)
-        self.active_config = self.config.active_config
+        self.active_config = self.config.active_config.encode("UTF-8")
 
         self.build_type = build_type
         if not self.build_type:
@@ -163,7 +163,7 @@ class Toc(WorkTree):
 
         # Set cmake generator if user has not set if in Toc ctor:
         if not self.cmake_generator:
-            self.cmake_generator = self.config.cmake.generator
+            self.cmake_generator = self.config.cmake.generator.encode("UTF-8")
             if not self.cmake_generator:
                 self.cmake_generator = "Unix Makefiles"
 
