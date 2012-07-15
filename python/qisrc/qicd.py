@@ -6,8 +6,9 @@
 
 """
 
+import os
 import sys
-import re
+
 import qisrc.worktree
 
 def main():
@@ -22,9 +23,9 @@ def main():
         sys.exit(0)
 
     token = sys.argv[1]
-    project = find_best_match(worktree, token)
-    if project:
-        print project.path
+    path = find_best_match(worktree, token)
+    if path:
+        print path
         sys.exit(0)
     else:
         sys.stderr.write("no match for %s\n" % token)
@@ -34,9 +35,20 @@ def main():
 def find_best_match(worktree, token):
     """ Find the best match for a project in a worktree
 
+    It's the shortest basename matching the token if there
+    are no '/' in token, else, the shortest src matching the token
+
     """
+    matches = list()
     for project in worktree.projects:
-        match = re.search("^(.*?/)?%s" % token, project.src)
-        if match:
-            return project
-    return None
+        if "/" in token:
+            to_match = project.src
+        else:
+            to_match = os.path.basename(project.src)
+        if token in to_match:
+            matches.append(project.path)
+
+    matches.sort(key=len)
+    if not matches:
+        return None
+    return matches[0]
