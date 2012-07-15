@@ -2,7 +2,7 @@ Source: qibuild
 Section: devel
 Priority: extra
 Maintainer: Aldebaran Robotics <qidev@aldebaran-robotics.com>
-Build-Depends: debhelper (>= 7.0.50~), cmake, python, asciidoc
+Build-Depends: debhelper (>= 7.0.50~), cmake, python, python-sphinx
 Standards-Version: 3.9.1
 Homepage: http://github.com/aldebaran/qibuild
 Vcs-Git: git://git.github.com/aldebaran/qibuild.git
