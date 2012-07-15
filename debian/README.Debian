@@ -1,8 +1,15 @@
 The Debian Package qibuild
 ----------------------------
 
+We create the symlinks to /usr/share/javascript/sphinxdoc/1.0/*.js
+to prevent some lintian warnings, but there is probably a better way to do this.
+
+We use CMake to call setup.py, which calls /usr/bin/python2 explicitly,
+and the source code IS compatible with python2.6 and python2.7,
+so there is no need for py_central here.
+
 The call to -DDEB_PACKAGE=ON is required to have 'python setup.py install'
 having the correct options. (--install-layout=deb, --no-compile)
 
 
- -- Aldebaran Robotics <qidev@aldebaran-robotics.com>  Sun, 27 Feb 2011 16:11:23 +0000
+ -- Aldebaran Robotics <qibuild-dev@aldebaran-robotics.com>  Sun, 27 Feb 2011 16:11:23 +0000

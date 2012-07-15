@@ -1,7 +1,7 @@
 Source: qibuild
 Section: devel
 Priority: extra
-Maintainer: Aldebaran Robotics <qidev@aldebaran-robotics.com>
+Maintainer: Aldebaran Robotics <qibuild-dev@aldebaran-robotics.com>
 Build-Depends: debhelper (>= 7.0.50~), cmake, python, python-sphinx
 Standards-Version: 3.9.1
 Homepage: http://github.com/aldebaran/qibuild
@@ -9,9 +9,6 @@ Vcs-Git: git://git.github.com/aldebaran/qibuild.git
 
 Package: qibuild
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, cmake, python
+Depends: ${misc:Depends}, python2, cmake, libjs-sphinxdoc
 Description: Compilation of C++ projects made easy
  Manages dependencies between projects and supports cross-compilation.
-
-
-

@@ -41,6 +41,12 @@ install: build
 	# Install.
 	cd build && DESTDIR=../debian/qibuild/ $(MAKE) install
 
+	# Replace js stuff in doc by symlinks:
+	ln -sf /usr/share/javascript/sphinxdoc/1.0/jquery.js \
+		   debian/qibuild/usr/share/qibuild/doc/html/_static/jquery.js
+	ln -sf /usr/share/javascript/sphinxdoc/1.0/underscore.js \
+	       debian/qibuild/usr/share/qibuild/doc/html/_static/underscore.js
+
 # Build architecture-independent files here.
 binary-indep: build install
 	dh_testdir
