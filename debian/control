@@ -9,7 +9,7 @@ Vcs-Git: git://git.github.com/aldebaran/qibuild.git
 
 Package: qibuild
 Architecture: all
-Depends: ${misc:Depends}, cmake, python
+Depends: ${python:Depends}, ${misc:Depends}, cmake, python
 Description: Compilation of C++ projects made easy
  Manages dependencies between projects and supports cross-compilation.
 
