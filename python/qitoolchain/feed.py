@@ -180,6 +180,7 @@ class ToolchainFeedParser:
 
             select_tree = tree.find("select")
             if select_tree is not None:
+            # pylint:disable-msg=no-member
                 blacklist_trees = select_tree.findall("blacklist")
                 for blacklist_tree in blacklist_trees:
                     name = blacklist_tree.get("name")

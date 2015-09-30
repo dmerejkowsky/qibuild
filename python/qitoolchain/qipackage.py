@@ -303,7 +303,6 @@ mutually exclusive
             cmp = lambda x, y: (x > y) - (x < y)
             result = cmp(self.name, other.name)
         return result
-
     def __lt__(self, other):
         if self.name == other.name:
             if self.version is None and other.version is not None:
