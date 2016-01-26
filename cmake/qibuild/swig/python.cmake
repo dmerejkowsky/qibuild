@@ -40,7 +40,12 @@ function(qi_swig_wrap_python module_name interface_file)
 
   include("UseSWIG")
 
-  set_source_files_properties(${interface_file} PROPERTIES CPLUSPLUS ON)
+  get_property(_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+  list(FIND _languages  CXX _index)
+  if(${_index} GREATER -1)
+    # Assume we are building some C++ code
+    set_source_files_properties(${interface_file} PROPERTIES CPLUSPLUS ON)
+  endif()
   # tell swig that the generated module name is ${module_name}.py
   # without this property, it assumes that it is ${interface_file}.py
   # TODO: check that it is a correct way to do this and not a nifty hack

@@ -114,3 +114,6 @@ cmake
 * Fix generation of installed ``foo-config.cmake`` files when
   used with ``qi_create_lib(foo foo.cpp SUBFOLDER bar)``
   (regression since ``3.10``)
+
+* Fix using ``qi_swig_wrap_python`` with ``C`` only projects.
+  We used to always call ``set_source_files_properties(foo.i PROPERTIES CPLUSPLUS ON)``
