@@ -24,6 +24,14 @@ Please refer to the documentation for more information.
 qibuild is under a BSD-style license that can be found in the COPYING file.
 Any contribution is more than welcome ;)
 
+Demo
+----
+
+A demo is available on `asciinema.org <https://asciinema.org/a/34945>`_
+
+.. image:: asciinema-scrot.png
+   :target: https://asciinema.org/a/34945
+
 
 git repository
 --------------
