@@ -25,3 +25,6 @@ script:
   - bash -xe ci/setup-ssh.sh
   - bash -xe ci/setup-git.sh
   - make -C python
+  # Integration test: make sure the demo works:
+  - pip install -e .
+  - cd contrib && yes | ./demo.sh
