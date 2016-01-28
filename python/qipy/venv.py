@@ -97,7 +97,7 @@ def configure_virtualenv(config, python_worktree,  build_worktree=None,
         ui.error("Bootstrap failed")
     return res
 
-def find_script(venv_path, script_name):
+def find_script(venv_path, script_name, only_in_venv=False):
     """ Find a script given its name
 
     First try in the virtualenv, then from $PATH
@@ -113,6 +113,10 @@ def find_script(venv_path, script_name):
         candidate = os.path.join(binaries_path, script_name)
     if os.path.exists(candidate):
         return candidate
+    if only_in_venv:
+        # Give up
+        return
+
     res = qisys.command.find_program(script_name)
     if res:
         return res
