@@ -22,7 +22,7 @@ main () {
   echo "Welcome to qiBuild demo. When prompted, press enter to continue"
   echo
 
-  echo "Making sure qibuild in installed"
+  echo "Making sure qibuild is installed"
 
   qibuild --version
 
