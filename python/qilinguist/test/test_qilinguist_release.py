@@ -51,7 +51,7 @@ def test_raise_when_no_project_given_outside_a_worktree(tmpdir, monkeypatch):
     # pylint:disable-msg=E1101
     with pytest.raises(qisys.error.Error) as e:
         qisys.script.run_action("qilinguist.actions.release")
-    assert "outside a worktree" in e.value.message
+    assert "outside a worktree" in e.value.args[0]
 
 @skip_no_gettext
 def test_non_translated_messages_gettext(qilinguist_action, record_messages):

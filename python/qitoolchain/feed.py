@@ -7,7 +7,7 @@
 
 
 import os
-import urlparse
+from six.moves import urllib
 try:
     # Prefer ElementTree from lxml as it will not reorder attributes when
     # writing XML.
@@ -148,7 +148,7 @@ class ToolchainFeedParser:
             if feed_url:
                 # feed_url can be relative to feed:
                 if not "://" in feed_url:
-                    child = urlparse.urljoin(feed, feed_url)
+                    child = urllib.parse.urljoin(feed, feed_url)
                 else:
                     child = feed_url
             else:

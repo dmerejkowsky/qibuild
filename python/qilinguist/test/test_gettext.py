@@ -55,7 +55,7 @@ def test_cplusplus_sdk_workflow(qilinguist_action):
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, env=env)
     out, _ = process.communicate()
-    out_fr = """Bonjour, mon nom est NAO.
+    out_fr = b"""Bonjour, mon nom est NAO.
 O\xc3\xb9 est Brian ?
 Brian est dans la cuisine.
 """
@@ -67,7 +67,7 @@ Brian est dans la cuisine.
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                stderr = subprocess.PIPE, env=env)
     out, _ = process.communicate()
-    out_en = """Hi, my name is NAO.
+    out_en = b"""Hi, my name is NAO.
 Where is Brian?
 Brian is in the kitchen.
 """
@@ -100,7 +100,7 @@ def test_cplusplus_install_workflow(qilinguist_action, tmpdir):
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, env=env)
     out, _ = process.communicate()
-    out_fr = """Bonjour, mon nom est NAO.
+    out_fr = b"""Bonjour, mon nom est NAO.
 O\xc3\xb9 est Brian ?
 Brian est dans la cuisine.
 """
@@ -112,7 +112,7 @@ Brian est dans la cuisine.
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, env=env)
     out, _ = process.communicate()
-    out_en = """Hi, my name is NAO.
+    out_en = b"""Hi, my name is NAO.
 Where is Brian?
 Brian is in the kitchen.
 """

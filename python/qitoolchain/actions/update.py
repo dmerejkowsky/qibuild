@@ -61,7 +61,7 @@ def do(args):
     else:
         tc_names = qitoolchain.get_tc_names()
         tc_with_feed = [x for x in tc_names if qitoolchain.toolchain.Toolchain(x).feed_location]
-        tc_without_feed = list(set(tc_names) - set(tc_with_feed))
+        tc_without_feed = sorted(list(set(tc_names) - set(tc_with_feed)))
         for i, tc_name in enumerate(tc_with_feed):
             ui.info_count(i, len(tc_with_feed),
 		          ui.green, "Updating",

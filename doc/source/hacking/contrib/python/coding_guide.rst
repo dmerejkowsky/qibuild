@@ -383,8 +383,8 @@ Classes
   .. code-block:: python
 
     # Yes
+    @six.add_metaclass(abc.ABCMeta)
     class AbstractFoo(object):
-        __metaclass__ = abc.ABCMeta
 
         @abc.abstractmethod
         def foo(self):

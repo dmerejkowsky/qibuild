@@ -12,10 +12,13 @@ def test_simple(qipy_action, args):
     python_worktree = qipy.parsers.get_python_worktree(args)
     venv_path = python_worktree.venv_path
     version = "%s.%s" % (sys.version_info.major, sys.version_info.minor)
-    parts = [venv_path, "lib", "site-packages", "tabulate.py"]
-    if os.name != "nt":
-        parts.insert(2, "python" + version)
+    python_with_version = "python%s" % version
+    parts = [venv_path, "lib", python_with_version,
+            "site-packages", "tabulate.py"]
+    if os.name == "nt":
+        parts.remove(python_with_version)
     tabulate_path = os.path.join(*parts)
+
     assert not os.path.exists(tabulate_path)
     qipy_action("pip", "install", "tabulate")
     assert os.path.exists(tabulate_path)

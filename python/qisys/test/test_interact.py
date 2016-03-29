@@ -10,10 +10,11 @@ from qisys.test.fake_interact import FakeInteract
 
 import mock
 import pytest
+import six
 
 def test_ask_yes_no():
     """ Test that you can answer with several types of common answers """
-    with mock.patch('__builtin__.raw_input') as m:
+    with mock.patch('six.moves.input') as m:
         m.side_effect = ["y", "yes", "Yes", "n", "no", "No"]
         expected_res  = [True, True, True, False, False, False]
         for res in expected_res:
@@ -22,20 +23,20 @@ def test_ask_yes_no():
 
 def test_ask_yes_no_default():
     """ Test that just pressing enter returns the default value """
-    with mock.patch('__builtin__.raw_input') as m:
+    with mock.patch('six.moves.input') as m:
         m.side_effect = ["", ""]
         assert qisys.interact.ask_yes_no("coffee?", default=True)  is True
         assert qisys.interact.ask_yes_no("coffee?", default=False) is False
 
 def test_ask_yes_no_wrong_input():
     """ Test that we keep asking when answer does not make sense """
-    with mock.patch('__builtin__.raw_input') as m:
+    with mock.patch('six.moves.input') as m:
         m.side_effect = ["coffee!", "n"]
         assert qisys.interact.ask_yes_no("tea?") is False
         assert m.call_count == 2
 
 def test_ask_string():
-    with mock.patch('__builtin__.raw_input') as m:
+    with mock.patch('six.moves.input') as m:
         m.side_effect = ["sugar!", ""]
         res = qisys.interact.ask_string("coffee with what?")
         assert res == "sugar!"
@@ -43,7 +44,7 @@ def test_ask_string():
         assert res == "milk"
 
 def test_ask_program(record_messages):
-    with mock.patch('__builtin__.raw_input') as m:
+    with mock.patch('six.moves.input') as m:
         # When not on Windows, we want to make sure the
         # result of ask_program is executable, that's why we
         # fake entering the current file (__file__) as input
@@ -71,7 +72,7 @@ def test_get_editor_editor(monkeypatch):
 def test_get_editor_ask(monkeypatch):
     monkeypatch.delenv("VISUAL", raising=False)
     monkeypatch.delenv("EDITOR", raising=False)
-    with mock.patch('__builtin__.raw_input') as m:
+    with mock.patch('six.moves.input') as m:
         # Need something that won't change when we'll call
         # to_native_path() on the input
         if os.name == "nt":
@@ -91,7 +92,7 @@ def test_get_editor_ask(monkeypatch):
                     reason="Onyl makes sense on Mac OSX")
 def test_ask_app(tmpdir):
     foo_app_path = tmpdir.ensure("Applications/foo.app", dir=True)
-    with mock.patch('__builtin__.raw_input') as m:
+    with mock.patch('six.moves.input') as m:
         m.side_effect = ["doesnotexists", "y", foo_app_path.strpath]
         assert qisys.interact.ask_app("foo") == foo_app_path.strpath
         assert len(m.mock_calls) == 3

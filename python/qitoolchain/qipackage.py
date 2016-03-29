@@ -1,6 +1,7 @@
 ## Copyright (c) 2012-2016 Aldebaran Robotics. All rights reserved.
 ## Use of this source code is governed by a BSD-style license that can be
 ## found in the COPYING file.
+import functools
 import os
 import sys
 import re
@@ -12,6 +13,8 @@ import qisys.error
 import qisys.version
 import qisrc.license
 import qibuild.deps
+
+import six
 
 class QiPackage(object):
     """ Binary package for use with qibuild.
@@ -297,9 +300,24 @@ mutually exclusive
 
                 result = -1
         else:
+            cmp = lambda x, y: (x > y) - (x < y)
             result = cmp(self.name, other.name)
-
         return result
+
+    def __lt__(self, other):
+        if self.name == other.name:
+            if self.version is None and other.version is not None:
+                return True
+            if self.version is not None and other.version is None:
+                return False
+            if self.version is None and other.version is None:
+                return True
+            return qisys.version.compare(self.version, other.version) == -1
+        else:
+            return self.name < other.name
+
+    def __eq__(self, other):
+        return self.name == other.name and self.version == other.version and self.checksum == other.checksum
 
 def from_xml(element):
     res = QiPackage(None) # need to pass an argument to the ctor

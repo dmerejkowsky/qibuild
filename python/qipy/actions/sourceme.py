@@ -44,5 +44,5 @@ Make sure to call `qipy bootstrap` first
     if args.mingw:
         res = qisys.sh.to_posix_path(res, fix_drive=True)
 
-    print res
+    print(res)
     return res

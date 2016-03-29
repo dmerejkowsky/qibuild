@@ -23,7 +23,7 @@ def generate_coverage_reports(project, output_dir=None, exclude_patterns=None):
     for exclude_pattern in exclude_patterns:
         exclude_args.extend(["--exclude", exclude_pattern])
 
-    for fmt, opts in formats.iteritems():
+    for fmt, opts in formats.items():
         cmd = ["gcovr",
                 "--root", sdir,
         ]

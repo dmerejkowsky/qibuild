@@ -107,7 +107,7 @@ def test_using_dash_all_with_dash_single(worktree, args):
     # pylint:disable-msg=E1101
     with pytest.raises(qisys.error.Error) as e:
         qisys.parsers.get_projects(worktree, args)
-    assert "--single with --all" in e.value.message
+    assert "--single with --all" in e.value.args[0]
 
 # On Windows, trying to remove working dir fails
 # with "file is used by another process" error
