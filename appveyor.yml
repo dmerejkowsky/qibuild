@@ -1,0 +1,16 @@
+os: Visual Studio 2015
+
+install:
+  - ps: ci\install.ps1
+  # Note: Cannot set paths from the install.ps1 script :\
+  - "SET PATH=C:\\Python27\\Scripts;%PATH%"
+  - "SET PATH=C:\\swig\\swigwin-3.0.8;%PATH%"
+  - "SET PATH=C:\\doxygen\\Doxygen-1.8.8-20140924081059\\bin\\Release;%PATH%"
+  - SET PATH
+  - dir /s /b
+  - dir /s /b C:\swig
+  - python --version
+  - pip --version
+  - swig --version
+  - cmake --version
+  - doxyen --version
